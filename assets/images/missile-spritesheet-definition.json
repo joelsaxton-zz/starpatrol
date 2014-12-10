@@ -1,0 +1,73 @@
+{
+
+    "frames":
+    [
+        
+        {
+            "filename": "frame-1.png",
+            "frame": {"x":0,"y":0,"w":361,"h":218},
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": {"x":0,"y":0,"w":361,"h":218},
+            "sourceSize": {"w":361,"h":218},
+            "spriteColorRect": {"x":0,"y":0,"w":361,"h":218},
+            "spriteOffset": {"x":0, "y":-0},
+            "spriteSize": {"w":361, "h":218}
+        },
+        {
+            "filename": "frame-2.png",
+            "frame": {"x":363,"y":0,"w":334,"h":218},
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": {"x":0,"y":0,"w":334,"h":218},
+            "sourceSize": {"w":334,"h":218},
+            "spriteColorRect": {"x":0,"y":0,"w":334,"h":218},
+            "spriteOffset": {"x":0, "y":-0},
+            "spriteSize": {"w":334, "h":218}
+        },
+        {
+            "filename": "frame-3.png",
+            "frame": {"x":0,"y":220,"w":334,"h":218},
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": {"x":0,"y":0,"w":334,"h":218},
+            "sourceSize": {"w":334,"h":218},
+            "spriteColorRect": {"x":0,"y":0,"w":334,"h":218},
+            "spriteOffset": {"x":0, "y":-0},
+            "spriteSize": {"w":334, "h":218}
+        },
+        {
+            "filename": "frame-4.png",
+            "frame": {"x":336,"y":220,"w":316,"h":218},
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": {"x":0,"y":0,"w":316,"h":218},
+            "sourceSize": {"w":316,"h":218},
+            "spriteColorRect": {"x":0,"y":0,"w":316,"h":218},
+            "spriteOffset": {"x":0, "y":-0},
+            "spriteSize": {"w":316, "h":218}
+        }
+    ],
+
+    "meta":
+    {
+
+        "app": "http://zwoptexapp.com",
+        "version": "1.6.0",
+        "image": "missile-spritesheet.png",
+        "size": {"w":1024,"h":512},
+        "name": "Untitled 2",
+        "premultipliedAlpha": false,
+        "target": {
+            "name": "default",
+            "textureFileName": "missile-spritesheet",
+            "textureFileExtension": ".png",
+            "coordinatesFileName": "missile-spritesheet-definition",
+            "coordinatesFileExtension": ".json",
+            "premultipliedAlpha": false
+        },
+        "scale": "1"
+
+    }
+
+}
