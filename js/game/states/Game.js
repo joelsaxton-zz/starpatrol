@@ -209,7 +209,6 @@ StarPatrol.Game.prototype = {
         this.train.caboose.anchor.setTo(0.5);
         this.train.caboose.scale.setTo(this.playerScale * 2);
         this.train.target = this.add.sprite(0, this.world.centerY, 'target');
-        this.train.caboose.target = this.add.sprite(0, this.world.centerY, 'target');
 
         this.train.cars = game.add.group();
         for (var i = 0; i < this.train.numCars; i++)
@@ -309,6 +308,7 @@ StarPatrol.Game.prototype = {
         this.shieldText = this.game.add.bitmapText(10,75, 'minecraftia', 'Shields: ' + this.player.shieldStrength, 8);
         this.nukeText = this.game.add.bitmapText(10,85, 'minecraftia', 'Shields: ' + this.player.numNukes, 8);
         this.aliensKilledText = this.game.add.bitmapText(10,95, 'minecraftia', 'Aliens Killed: ' + this.aliensKilled, 8);
+        this.distanceToEarthText = this.game.add.bitmapText(10,105, 'minecraftia', 'Distance to Earth: ', 8);
         this.shieldText.tint = 0x66CD00; // '#66CD00'
         this.batteryText.tint = 0xFF0000; // '#FF0000'
         this.scoreText.fixedToCamera = true;
@@ -319,6 +319,7 @@ StarPatrol.Game.prototype = {
         this.trainHealthText.fixedToCamera = true;
         this.warpText.fixedToCamera = true;
         this.aliensKilledText.fixedToCamera = true;
+        this.distanceToEarthText.fixedToCamera = true;
 
         // Set sounds
         this.jetSound = this.game.add.audio('rocket');
@@ -338,7 +339,7 @@ StarPatrol.Game.prototype = {
         this.applauseSound = this.game.add.audio('applause');
         this.bendingSound = this.game.add.audio('bending');
         this.nukeSound = this.game.add.audio('nuke');
-        this.gameMusic.play('', 0, 0.4, true, true);
+        this.gameMusic.play('', 0, 0.5, true, true);
 
         // Set inputs
         this.cursors = game.input.keyboard.createCursorKeys();
@@ -382,6 +383,7 @@ StarPatrol.Game.prototype = {
             this.updateProjectiles();
             this.updateEpisode();
             this.checkWin();
+
         }
     },
 
@@ -417,8 +419,6 @@ StarPatrol.Game.prototype = {
         }, this);
         this.train.target.x = this.train.x + this.train.width * 1.5;
         this.train.target.y = this.train.y;
-        this.train.caboose.target.x = this.train.caboose.x - this.train.caboose.width * 0.1;
-        this.train.caboose.target.y = this.train.caboose.y;
         this.train.map.fixedToCamera = false;
         this.train.map.x = this.game.width - this.mapSize + parseInt(this.train.x * this.mapGameRatio) - this.mapOffset;
         this.train.map.y = parseInt(this.train.y * this.mapGameRatio) + this.mapOffset;
@@ -446,6 +446,9 @@ StarPatrol.Game.prototype = {
     },
 
     updateAllText: function() {
+        this.distanceToEarthText.text =
+            'Distance to Earth: ' + parseFloat(this.game.physics.arcade.distanceBetween(this.train, this.earth) / 10000).toFixed(1) + ' billion miles.';
+
         this.healthText.text = 'Hull: ' + parseInt(this.player.health);
         this.trainHealthText.text = 'Space Train: ' + this.train.health;
         this.shieldText.text = 'Shields: ' + this.player.shieldStrength;
@@ -928,8 +931,8 @@ StarPatrol.Game.prototype = {
                 alien.attackLocation = this.train.target;
                 break;
             case 2:
-                alien.target = this.train.caboose;
-                alien.attackLocation = this.train.caboose.target;
+                alien.target = this.train;
+                alien.attackLocation = this.train.target;
                 break;
             case 3:
                 alien.target = this.player;
@@ -1132,6 +1135,7 @@ StarPatrol.Game.prototype = {
             this.shieldText.text = '';
             this.warpText.text = '';
             this.nukeText.text = '';
+            this.distanceToEarthText.text = '';
         }, this);
     },
 
