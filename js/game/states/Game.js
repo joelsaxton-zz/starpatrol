@@ -4,7 +4,7 @@
 StarPatrol.Game = function(){
 
     // Scaled physics and values based on this.GAME_SCALE
-    this.GAME_SCALE = 0.2;
+    this.GAME_SCALE = 0.15;
     this.GAMESIZE = this.GAME_SCALE * 750000;
     this.MAXVELOCITY = this.GAME_SCALE * 2400;
     this.WARPVELOCITY = this.MAXVELOCITY * 6;
@@ -339,7 +339,7 @@ StarPatrol.Game.prototype = {
         this.applauseSound = this.game.add.audio('applause');
         this.bendingSound = this.game.add.audio('bending');
         this.nukeSound = this.game.add.audio('nuke');
-        this.gameMusic.play('', 0, 0.5, true, true);
+        this.gameMusic.play('', 0, 0.6, true, true);
 
         // Set inputs
         this.cursors = game.input.keyboard.createCursorKeys();
