@@ -10,7 +10,7 @@ StarPatrol.Game = function(){
     this.WARPVELOCITY = this.MAXVELOCITY * 6;
     this.MAXTHRUST = this.GAME_SCALE * 36;
     this.ALIENSPEED = this.GAME_SCALE * 1400;
-    this.TRAINSPEED = this.ALIENSPEED * 0.8;
+    this.TRAINSPEED = this.ALIENSPEED * 0.6;
     this.GRAVITY = this.GAME_SCALE * 400;
     this.GRAVITYRANGE = this.GAME_SCALE * 4000;
     this.MISSILESCALE = this.GAME_SCALE * 0.5;
@@ -22,13 +22,14 @@ StarPatrol.Game = function(){
     this.playerScale = this.GAME_SCALE;
     this.alienScale = this.GAME_SCALE;
     this.planetScale = this.GAME_SCALE * 12;
+    this.trainScale = this.GAME_SCALE * 3;
     this.earthRadius = this.planetScale * 125 * 0.5;
     this.mapPlanetScale = this.GAME_SCALE * 70;
-    this.BULLETLOCKDISTANCE = this.GAME_SCALE * 1200;
+    this.BULLETLOCKDISTANCE = this.GAME_SCALE * 1800;
     this.BULLETACCELERATION = this.GAME_SCALE * 1200;
     this.MAXBULLETSPEED = this.GAME_SCALE * 4000;
-    this.MAXBULLETDISTANCE = this.GAME_SCALE * 2400;
-    this.MAXTRACTORBEAMDISTANCE = this.GAME_SCALE * 3600;
+    this.MAXBULLETDISTANCE = this.GAME_SCALE * 5000;
+    this.MAXTRACTORBEAMDISTANCE = this.GAME_SCALE * 6000;
     this.TRACTORBEAMFORCE = this.GAME_SCALE * 3200;
     this.MINSAFEWARPDISTANCE = this.GAME_SCALE * 3200;
 
@@ -204,10 +205,10 @@ StarPatrol.Game.prototype = {
         this.train = this.add.sprite(0, this.world.centerY, 'train-head');
         this.train.numCars = 20;
         this.train.anchor.setTo(0.5);
-        this.train.scale.setTo(this.playerScale * 2);
+        this.train.scale.setTo(this.trainScale);
         this.train.caboose = this.add.sprite(0, this.world.centerY, 'caboose');
         this.train.caboose.anchor.setTo(0.5);
-        this.train.caboose.scale.setTo(this.playerScale * 2);
+        this.train.caboose.scale.setTo(this.trainScale);
         this.train.target = this.add.sprite(0, this.world.centerY, 'target');
 
         this.train.cars = game.add.group();
@@ -215,7 +216,7 @@ StarPatrol.Game.prototype = {
         {
             var car = this.train.cars.create(0, this.world.centerY, 'cargo-pod');
             car.anchor.setTo(0.5);
-            car.scale.setTo(this.playerScale * 2);
+            car.scale.setTo(this.trainScale);
         }
         this.train.x = this.train.numCars * this.train.width;
         this.player.x = this.train.x;
@@ -417,7 +418,7 @@ StarPatrol.Game.prototype = {
                 this.train.caboose.y = this.train.y;
             }
         }, this);
-        this.train.target.x = this.train.x + this.train.width * 1.5;
+        this.train.target.x = this.train.x + this.train.width * 1.4;
         this.train.target.y = this.train.y;
         this.train.map.fixedToCamera = false;
         this.train.map.x = this.game.width - this.mapSize + parseInt(this.train.x * this.mapGameRatio) - this.mapOffset;
