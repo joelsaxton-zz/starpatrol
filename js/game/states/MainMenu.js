@@ -13,7 +13,7 @@ StarPatrol.MainMenu.prototype = {
         this.player.scale.setTo(0.5);
         this.player.animations.add('fly', [0,0,0,0,0,0,0,4,5,6,7]);
         this.player.animations.play('fly', 20, true);
-        this.player.angle = 135;
+        this.player.angle = 45;
         this.splash = this.add.sprite(this.game.world.centerX, this.game.world.centerY, 'logo');
         this.splash.anchor.setTo(0.5);
 

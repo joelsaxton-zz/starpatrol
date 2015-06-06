@@ -5,7 +5,7 @@
 var Asteroid = function(game, asteroidScale, asteroidSpeed, x, y, direction, key, frame){
     key = 'asteroid';
     Phaser.Sprite.call(this, game, x, y, key, frame);
-    this.scale.setTo(this.game.rnd.realInRange(0.1,0.5) * asteroidScale);
+    this.scale.setTo(this.game.rnd.realInRange(0.2,0.8) * asteroidScale);
     this.anchor.setTo(0.5);
     this.game.physics.arcade.enableBody(this);
     this.body.bounce.set(1.0);
