@@ -338,6 +338,7 @@ StarPatrol.Game.prototype = {
         this.boingSound = this.game.add.audio('boing');
         this.tractorBeamSound = this.game.add.audio('tractor-beam');
         this.applauseSound = this.game.add.audio('applause');
+        this.yellSound = this.game.add.audio('yell');
         this.bendingSound = this.game.add.audio('bending');
         this.nukeSound = this.game.add.audio('nuke');
         this.gameMusic.play('', 0, 0.6, true, true);
@@ -349,6 +350,15 @@ StarPatrol.Game.prototype = {
         this.nKey = game.input.keyboard.addKey(Phaser.Keyboard.N);
         this.spacebar.onDown.add(this.fireMissile,this);
         this.nKey.onDown.add(this.fireNuke,this);
+
+        this.gameMusic.stop();
+        this.warpLoopSound.stop();
+        this.game.world.bounds = new Phaser.Rectangle(0, 0, this.game.width, this.game.height);
+        this.game.camera.setBoundsToWorld();
+        var scoreboard = new Scoreboard(this.game);
+        scoreboard.show(this.score, this.youBlewIt, this.explosionSound, this.yellSound, true);
+        this.killAlien();
+        this.gameOver = true;
     },
 
     update: function() {
@@ -440,7 +450,7 @@ StarPatrol.Game.prototype = {
             this.game.world.bounds = new Phaser.Rectangle(0, 0, this.game.width, this.game.height);
             this.game.camera.setBoundsToWorld();
             var scoreboard = new Scoreboard(this.game);
-            scoreboard.show(this.score, this.applauseSound, this.explosionSound, true);
+            scoreboard.show(this.score, this.applauseSound, this.explosionSound, this.yellSound, true);
             this.killAlien();
             this.gameOver = true;
         }
@@ -1126,7 +1136,7 @@ StarPatrol.Game.prototype = {
             this.game.world.bounds = new Phaser.Rectangle(0, 0, this.game.width, this.game.height);
             this.game.camera.setBoundsToWorld();
             var scoreboard = new Scoreboard(this.game);
-            scoreboard.show(this.score, this.youBlewIt, this.explosionSound, false);
+            scoreboard.show(this.score, this.youBlewIt, this.explosionSound, this.yellSound, false);
             if (this.warpLoopSound.isPlaying) {
                 this.warpLoopSound.stop();
             }

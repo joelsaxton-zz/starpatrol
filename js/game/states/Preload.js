@@ -64,6 +64,7 @@ StarPatrol.Preload.prototype = {
         this.load.audio('shield-up', 'assets/audio/shield-up.wav');
         this.load.audio('boing', 'assets/audio/boing.wav');
         this.load.audio('applause', 'assets/audio/applause.wav');
+        this.load.audio('yell', 'assets/audio/yell.wav');
         this.load.audio('tractor-beam', 'assets/audio/tractor-beam.wav');
         this.load.audio('bending', 'assets/audio/bending.wav');
         this.load.audio('nuke', 'assets/audio/nuke.wav');
