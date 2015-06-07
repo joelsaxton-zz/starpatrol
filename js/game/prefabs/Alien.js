@@ -16,15 +16,17 @@ var Alien = function(game, x, y, charge, health, scale, key, frame){
     this.isTractorBeamOn = false;
     this.health = this.maxhealth;
     this.target = null;
-    this.isAttacking = true;
-    this.beganRetreat = false;
-    this.retreatedOnceAlready = false;
     this.alive = true;
     game.physics.arcade.enableBody(this);
     this.checkWorldBounds = true;
     this.body.collideWorldBounds = true;
     this.body.bounce.set(0.8);
     this.events.onRevived.add(this.onRevived, this);
+    this.turnRate = 1.5;
+    this.speed = 0;
+    this.minAttackDistance = 60;
+    this.isAttacking = true;
+    this.isSlowing = false;
 
 };
 
@@ -36,6 +38,5 @@ Alien.prototype.onRevived = function() {
     this.health = this.maxhealth;
     this.alive = true;
     this.isAttacking = true;
-    this.beganRetreat = false;
-    this.retreatedOnceAlready = false;
+    this.isSlowing = false;
 };

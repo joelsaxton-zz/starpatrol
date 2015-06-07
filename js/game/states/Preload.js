@@ -20,6 +20,7 @@ StarPatrol.Preload.prototype = {
         this.load.image('background', 'assets/images/tiles/star-background.png');
         this.load.image('scoreboard-fail', 'assets/images/scoreboard-fail.png');
         this.load.image('scoreboard-win', 'assets/images/scoreboard-win.png');
+        this.load.spritesheet('laser', 'assets/images/laser.png', 100, 100, 4);
         this.load.spritesheet('missile', 'assets/images/missile-spritesheet.png', 600, 100, 8);
         this.load.spritesheet('player', 'assets/images/new-ship.png', 180, 140, 2);
         this.load.spritesheet('asteroid', 'assets/images/asteroid-spritesheet.png', 140, 140, 1);
@@ -43,6 +44,7 @@ StarPatrol.Preload.prototype = {
         this.load.spritesheet('bullet', 'assets/images/bullet-spritesheet.png', 100, 100, 4);
 
         this.load.audio('gameMusic', ['assets/audio/music.mp3', 'assets/audio/music.ogg']);
+        this.load.audio('laser', 'assets/audio/laser.wav');
         this.load.audio('missile', 'assets/audio/missile.wav');
         this.load.audio('nuke', 'assets/audio/missile-new.wav');
         this.load.audio('bullet', 'assets/audio/blip.wav');
