@@ -2,20 +2,21 @@
  * Created by joelsaxton on 11/10/14.
  */
 
-var Asteroid = function(game, asteroidScale, asteroidSpeed, x, y, direction, key, frame){
+var Asteroid = function(game, scale, x, y, direction, key, frame){
     key = 'asteroid';
     Phaser.Sprite.call(this, game, x, y, key, frame);
-    this.scale.setTo(this.game.rnd.realInRange(0.25,1) * asteroidScale);
+    this.scale.setTo(this.game.rnd.realInRange(0.2, 2) * scale);
     this.anchor.setTo(0.5);
     this.game.physics.arcade.enableBody(this);
     this.body.bounce.set(1.0);
     this.direction = direction;
     this.events.onRevived.add(this.onRevived, this);
-    this.maxUpperVel = 400 * asteroidSpeed;
-    this.maxLowerVel = 100 * asteroidSpeed;
+    this.maxUpperVel = 500;
+    this.maxLowerVel = 100;
     this.maxAngularVel = 1000;
     this.startX = x;
     this.startY = y;
+    this.damage = 5;
 };
 
 Asteroid.prototype = Object.create(Phaser.Sprite.prototype);
