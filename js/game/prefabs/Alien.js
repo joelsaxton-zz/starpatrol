@@ -17,8 +17,8 @@ var Alien = function(game, player, scale, x, y, key, frame){
     this.MAXTHRUST = this.alienScale * 50;
     this.MAXVELOCITY = this.alienScale * 3800;
     this.BULLETSCALE = this.alienScale * 0.4;
-    this.BULLETLOCKDISTANCE = this.alienScale * 3000;
-    this.BULLETACCELERATION = this.alienScale * 8000;
+    this.BULLETLOCKDISTANCE = this.alienScale * 2000;
+    this.BULLETACCELERATION = this.alienScale * 4000;
     this.MAXBULLETSPEED = this.alienScale * 6000;
     this.MAXBULLETDISTANCE = this.alienScale * 6000;
     this.MAXTRACTORBEAMDISTANCE = this.alienScale * 3000;
@@ -41,7 +41,7 @@ var Alien = function(game, player, scale, x, y, key, frame){
     this.isSlowing = false;
     this.bullets = this.game.add.group();
 
-    //Sounds
+    // Sounds
     this.tractorBeamSound = this.game.add.audio('tractor-beam');
     this.bulletSound = this.game.add.audio('bullet');
 
@@ -175,6 +175,6 @@ Alien.prototype.update = function() {
         }
 
     } else { // TWEEN - not attacking, spinning and pulling back instead
-        //this.avoidObstacle();
+        this.avoidObstacle();
     }
 };

@@ -22,7 +22,7 @@ StarPatrol.Preload.prototype = {
         this.load.image('scoreboard-win', 'assets/images/scoreboard-win.png');
         this.load.spritesheet('laser', 'assets/images/laser.png', 100, 100, 4);
         this.load.spritesheet('missile', 'assets/images/missile-spritesheet.png', 600, 100, 8);
-        this.load.spritesheet('player', 'assets/images/new-ship.png', 180, 140, 2);
+        this.load.spritesheet('player', 'assets/images/ship-spritesheet.png', 316, 200, 8);
         this.load.spritesheet('asteroid', 'assets/images/asteroid-spritesheet.png', 140, 140, 1);
         this.load.spritesheet('explosion', 'assets/images/explosion-spritesheet.png', 64, 64, 23);
         this.load.spritesheet('big-explosion', 'assets/images/big-explosion-spritesheet.png', 128, 128, 23);
