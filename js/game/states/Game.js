@@ -381,15 +381,16 @@ StarPatrol.Game.prototype = {
     checkPlayerInputs: function () {
         // Constrain velocity
         if (this.player.isWarping) {
-           this.constrainVelocity(this.player, this.player.WARPVELOCITY);
+            this.player.animations.play('warp', 10, true);
+            this.constrainVelocity(this.player, this.player.WARPVELOCITY);
         } else {
             this.constrainVelocity(this.player, this.player.VELOCITY);
         }
 
         // Decide animation
         if (!this.cursors.up.isDown) {
-            if (!this.player.isShielded) {
-                this.player.animations.play('drift', 10, true);
+            if (!this.player.isShielded && !this.player.isWarping) {
+              this.player.animations.play('drift', 10, true);
             }
         }
 
@@ -434,7 +435,6 @@ StarPatrol.Game.prototype = {
             var y_component = Math.sin((this.player.angle) * Math.PI / 180);
             this.player.body.velocity.x += this.player.thrust * this.player.warpModifier * x_component;
             this.player.body.velocity.y += this.player.thrust * this.player.warpModifier * y_component;
-            this.player.animations.play('warp', 50, true);
         } else if (this.player.isWarping) {
             this.player.isWarping = false;
             this.warpDownSound.play('', 0, 0.8, false);
@@ -450,7 +450,7 @@ StarPatrol.Game.prototype = {
             // Thrust
             if (this.cursors.up.isDown) {
                 if (!this.player.isShielded) {
-                    //this.player.animations.play('thrust');
+                   this.player.animations.play('thrust');
                 }
                 var x_component = Math.cos((this.player.angle) * Math.PI / 180);
                 var y_component = Math.sin((this.player.angle) * Math.PI / 180);

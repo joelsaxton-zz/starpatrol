@@ -76,10 +76,12 @@ var Player = function(main, x, y, frame){
     this.map.scale.setTo(2);
 
     // Set player animations
-    this.animations.add('drift', [6,7]);
-    this.animations.add('thrust', [4,5]);
-    this.animations.add('warp', [2,3]);
-    this.animations.add('shield', [0,1]);
+    this.animations.add('thrust', [0,1]);
+    this.animations.add('thrust-lights', [2,3]);
+    this.animations.add('shield', [4,5]);
+    this.animations.add('warp', [6,7]);
+    this.animations.add('drift', [8,9]);
+    this.animations.add('drift-lights', [10,11]);
     this.animations.play('drift', 20, true);
     this.map.animations.add('tracking', [0,1]);
     this.map.animations.play('tracking', 10, true);
