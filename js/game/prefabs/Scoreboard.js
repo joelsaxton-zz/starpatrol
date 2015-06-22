@@ -29,11 +29,11 @@ Scoreboard.prototype.show = function(score, gameOverSound, explosionSound, victo
 
     this.y = this.game.height;
 
-    scoreText = this.game.add.bitmapText(0, this.game.world.centerY, 'minecraftia', 'Your Score: ' + score, 16);
+    scoreText = this.game.add.bitmapText(0, this.game.world.centerY, 'minecraftia', 'Your Score: ' + score + ' aliens killed', 16);
     scoreText.x = this.game.width/2 - (scoreText.textWidth /2);
     this.add(scoreText);
 
-    highScoreText = this.game.add.bitmapText(0, this.game.world.centerY + 50, 'minecraftia', 'Your High Score: ' + highScore, 16);
+    highScoreText = this.game.add.bitmapText(0, this.game.world.centerY + 50, 'minecraftia', 'Your High Score: ' + highScore + ' aliens killed', 16);
     highScoreText.x = this.game.width/2 - (highScoreText.textWidth /2);
     this.add(highScoreText);
 

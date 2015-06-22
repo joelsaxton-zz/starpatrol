@@ -26,8 +26,11 @@ StarPatrol.Preload.prototype = {
         this.load.spritesheet('asteroid', 'assets/images/asteroid-spritesheet.png', 140, 140, 1);
         this.load.spritesheet('explosion', 'assets/images/explosion-spritesheet.png', 64, 64, 23);
         this.load.spritesheet('big-explosion', 'assets/images/big-explosion-spritesheet.png', 128, 128, 23);
-        this.load.spritesheet('alien', 'assets/images/magnetship.png', 150, 120, 4);
-        this.load.spritesheet('earth', 'assets/images/earth.png', 250, 250, 1);
+        this.load.spritesheet('magnet', 'assets/images/magnetship.png', 150, 120, 4);
+        this.load.spritesheet('sputnik', 'assets/images/sputnik.png', 179, 100, 4);
+        this.load.spritesheet('drill', 'assets/images/drillship.png', 220, 200, 1);
+        this.load.spritesheet('earth', 'assets/images/earth-large.png', 1000, 1000, 1);
+        this.load.spritesheet('earth-map', 'assets/images/earth.png', 250, 250, 1);
         this.load.spritesheet('venus', 'assets/images/venus.png', 250, 250, 1);
         this.load.spritesheet('mercury', 'assets/images/mercury.png', 200, 200, 1);
         this.load.spritesheet('pluto', 'assets/images/pluto.png', 200, 200, 1);
@@ -37,11 +40,23 @@ StarPatrol.Preload.prototype = {
         this.load.spritesheet('jupiter', 'assets/images/jupiter.png', 350, 350, 1);
         this.load.spritesheet('mars', 'assets/images/mars.png', 200, 200, 1);
         this.load.spritesheet('sun', 'assets/images/sun.png', 800, 800, 1);
-
         this.load.spritesheet('map', 'assets/images/starmap.png', 200, 200, 1);
         this.load.spritesheet('playermap', 'assets/images/playermap-spritesheet.png', 1, 1, 2);
         this.load.spritesheet('alienmap', 'assets/images/alienmap-spritesheet.png', 1, 1, 2);
         this.load.spritesheet('bullet', 'assets/images/bullet-spritesheet.png', 100, 100, 4);
+        this.load.spritesheet('armor', 'assets/images/armor.png', 50, 60, 1);
+        this.load.spritesheet('armor-buy', 'assets/images/health-buy.png', 118, 118, 1);
+        this.load.spritesheet('charge', 'assets/images/charge.png', 50, 60, 1);
+        this.load.spritesheet('charge-buy', 'assets/images/charge-buy.png', 118, 118, 1);
+        this.load.spritesheet('engine', 'assets/images/engine.png', 50, 60, 1);
+        this.load.spritesheet('engine-buy', 'assets/images/engine-buy.png', 118, 118, 1);
+        this.load.spritesheet('missile-buy', 'assets/images/missile-buy.png', 118, 118, 1);
+        this.load.spritesheet('nuke-buy', 'assets/images/nuke-buy.png', 118, 118, 1);
+        this.load.spritesheet('shield-buy', 'assets/images/shield-buy.png', 118, 118, 1);
+        this.load.spritesheet('warp-buy', 'assets/images/warp-buy.png', 118, 118, 1);
+        this.load.spritesheet('kills', 'assets/images/kills.png', 50, 60, 1);
+        this.load.spritesheet('dollars', 'assets/images/dollar.png', 50, 60, 1);
+        this.load.spritesheet('station', 'assets/images/station.png', 348, 326, 1);
 
         this.load.audio('gameMusic', ['assets/audio/music.mp3', 'assets/audio/music.ogg']);
         this.load.audio('laser', 'assets/audio/laser.wav');
@@ -61,6 +76,10 @@ StarPatrol.Preload.prototype = {
         this.load.audio('tractor-beam', 'assets/audio/tractor-beam.wav');
         this.load.audio('bending', 'assets/audio/bending.wav');
         this.load.audio('nuke', 'assets/audio/nuke.wav');
+        this.load.audio('alert', 'assets/audio/alert.wav');
+        this.load.audio('suicide', 'assets/audio/bounce.wav');
+        this.load.audio('drill', 'assets/audio/drill.wav');
+
 
         this.load.bitmapFont('minecraftia', 'assets/fonts/minecraftia/minecraftia.png', 'assets/fonts/minecraftia/minecraftia.xml');
         this.load.onLoadComplete.add(this.onLoadComplete, this);

@@ -4,45 +4,52 @@
 
 var Player = function(main, x, y, frame){
 
+    this.main = main;
     this.playerScale = main.GAME_SCALE;
     var key = 'player';
     Phaser.Sprite.call(this, main.game, x, y, key, frame);
 
     this.anchor.setTo(0.5);
-    this.scale.setTo(this.playerScale * 2.2);
+    this.scale.setTo(this.playerScale * 1.8);
 
     // Ultimate max values for improvable ship params
+    this.MAXENGINE = 10;
     this.MAXHEALTH = 1000;
     this.MAXCHARGE = 1000;
-    this.MAXVELOCITY = this.playerScale * 10000;
-    this.MAXTHRUST = this.playerScale * 200;
+
+    this.SLINGSHOT_MULTIPLIER = 2;
+    this.TURNRATE_INCREMENT = 0.25;
+    this.THRUST_INCREMENT = this.playerScale * 20;
+    this.VELOCITY_INCREMENT = this.playerScale * 240;
+    this.CHARGE_INCREMENT = 100;
+    this.HEALTH_INCREMENT = 100;
 
     // Mutable limits based on game progress
-    this.VELOCITY = this.playerScale * 2000;
-    this.THRUST = this.playerScale * 20;
+    this.ENGINE = 1;
+    this.VELOCITY = this.playerScale * this.ENGINE * 2000;
+    this.SLINGSHOT_VELOCITY = this.VELOCITY * this.SLINGSHOT_MULTIPLIER;
+    this.THRUST = this.playerScale * this.ENGINE * 20;
     this.HEALTH = 100;
     this.CHARGE = 100;
+    this.TURNRATE = this.ENGINE;
 
     this.health = this.HEALTH;
     this.charge = this.CHARGE;
-    this.thrust = this.THRUST;
     this.MISSILESCALE = this.playerScale * 0.4;
-    this.LASERSCALE = this.playerScale * 0.3;
+    this.LASERSCALE = this.playerScale * 0.5;
     this.NUKESCALE = this.playerScale * 0.5;
-    this.MAXTURNINCREMENT = 0.1;
-    this.MAXTURNRATE = 4;
-    this.MINTURNRATE = 0.8;
+
+    this.MAX_MISSILES = 10;
+    this.MAX_NUKES = 3;
+    this.ENGINE_COST_MULTIPLIER = 1.5;
     this.WARP_DISCHARGE = 0.2;
     this.SHIELD_DISCHARGE = 4;
     this.MINSAFEWARPDISTANCE = this.playerScale * 3200;
     this.WARPVELOCITY = this.VELOCITY * 10;
     this.RELOAD_INTERVAL = 500;
     this.RECHARGE_INTERVAL = 50;
-    this.WARP_INTERVAL = 2500;
+    this.WARP_INTERVAL = 2000; // @todo fix later
     this.LASER_DISCHARGE = 34;
-    this.turnRate = 0;
-    this.maxTurnRate = this.MAXTURNRATE;
-    this.turnIncrement = this.MAXTURNINCREMENT;
     this.shieldStrength = this.CHARGE;
     this.warpDrive = this.CHARGE;
     this.warpModifier = 5;
@@ -51,17 +58,29 @@ var Player = function(main, x, y, frame){
     this.isWarping = false;
     this.isShielded = false;
     this.game.physics.arcade.enableBody(this);
-    this.body.bounce.set(0.8);
+    this.body.bounce.set(0.5);
     this.checkWorldBounds = true;
     this.body.collideWorldBounds = true;
-    this.begin = true;
-    this.nukes = 3;
-    this.missiles = 20;
-    this.hasShields = true;
-    this.hasWarpDrive = true;
+    this.isDocked = true;
+    this.isDisembarking = false;
+    this.nukes = 0;
+    this.missiles = 0;
+    this.hasShields = false;
+    this.hasWarpDrive = false;
     this.selectedWeapon = 'laser';
     this.aliensKilled = 0;
-    this.cash = 0;
+    this.cash = 3000;
+    this.inGravitationalField = false;
+    this.SLINGSHOT_SLOW_RATE = 0.99; // @todo revisit slowdown
+
+    // Upgrades
+    this.engineCost = this.ENGINE * 1000;
+    this.nukeCost = 1000;
+    this.missileCost = 100;
+    this.shieldCost = 10000;
+    this.warpCost = 16000;
+    this.chargeCost = 1000;
+    this.armorCost = 1000;
 
     // Set projectile pools
     this.lasers = this.game.add.group();
@@ -73,7 +92,7 @@ var Player = function(main, x, y, frame){
     this.map = this.game.add.sprite(this.game.width - this.game.mapSize - this.game.mapOffset + parseInt(this.x * this.game.mapGameRatio), parseInt(this.y * this.game.mapGameRatio) + this.game.mapOffset, 'playermap');
     this.map.fixedToCamera = true;
     this.map.anchor.setTo(0.5);
-    this.map.scale.setTo(2);
+    this.map.scale.setTo(3);
 
     // Set player animations
     this.animations.add('thrust', [0,1]);
@@ -163,4 +182,140 @@ Player.prototype.createNuke = function(x, y, angle) {
     nuke.reset(this.x, this.y);
     nuke.revive();
     nuke.animations.play('missile-launch', 8, true);
+};
+
+Player.prototype.upgradeShip = function(part) {
+    switch (part) {
+        case 'engine':
+            if (this.cash >= this.engineCost && this.ENGINE < this.MAXENGINE) {
+                this.cash -= this.engineCost;
+                this.ENGINE++;
+                this.THRUST += this.THRUST_INCREMENT;
+                this.TURNRATE += this.TURNRATE_INCREMENT;
+                this.VELOCITY += this.VELOCITY_INCREMENT;
+                this.SLINGSHOT_VELOCITY = this.VELOCITY * this.SLINGSHOT_MULTIPLIER;
+                this.engineCost = Math.floor(this.engineCost * this.ENGINE_COST_MULTIPLIER); // @todo revisit
+            }
+            break;
+        case 'charge':
+            if (this.cash >= this.chargeCost && this.CHARGE < this.MAXCHARGE) {
+                this.cash -= this.chargeCost;
+                this.CHARGE += this.CHARGE_INCREMENT;
+                this.charge += this.CHARGE_INCREMENT;
+            }
+            break;
+        case 'health':
+            if (this.cash >= this.armorCost) {
+                this.cash -= this.armorCost;
+                if (this.HEALTH < this.MAXHEALTH) {
+                    this.HEALTH += this.HEALTH_INCREMENT;
+                }
+                if (this.health < this.HEALTH) {
+                    this.health += this.HEALTH_INCREMENT;
+                    if (this.health > this.HEALTH) {
+                        this.health = this.HEALTH;
+                    }
+                }
+            }
+            break;
+        case 'missile':
+            if (this.cash >= this.missileCost && this.missiles < this.MAX_MISSILES) {
+                this.missiles++;
+                this.cash -= this.missileCost;
+            }
+            break;
+        case 'nuke':
+            if (this.cash >= this.nukeCost && this.nukes < this.MAX_NUKES) {
+                this.nukes++;
+                this.cash -= this.nukeCost;
+            }
+            break;
+        case 'shield':
+            if (this.cash >= this.shieldCost) {
+                this.hasShields = true;
+                this.cash -= this.shieldCost;
+            }
+            break;
+        case 'warp':
+            if (this.cash >= this.warpCost) {
+                this.hasWarpDrive = true;
+                this.cash -= this.warpCost;
+            }
+            break;
+    }
+};
+
+Player.prototype.updateWeapons = function() {
+
+    this.lasers.forEach(function (laser) {
+        if (laser) {
+            if (laser.lifespan < this.game.time.now) {
+                laser.kill();
+            }
+        }
+    }, this);
+
+    this.missilegroup.forEach(function (missile) {
+        if (missile) {
+            // Calculate the angle from the missile to the mouse cursor game.input.x
+            // and game.input.y are the mouse position; substitute with whatever
+            // target coordinates you need.
+
+            var targetAngle = 0;
+
+            if (this.main.alien) {
+                targetAngle = this.game.math.angleBetween(
+                    missile.x, missile.y,
+                    this.main.alien.x, this.main.alien.y
+                );
+            } else {
+                targetAngle = this.game.math.angleBetween(
+                    missile.x, missile.y,
+                    this.x, this.y
+                );
+            }
+
+
+            // Add wobble effect
+            targetAngle += this.game.math.degToRad(missile.wobble);
+
+            // Accelerate missile then lock on and turn to find enemy
+            if (missile.speed < missile.MAX_SPEED) {
+                missile.speed += missile.thrust;
+            } else {
+                // Gradually (this.TURN_RATE) aim the missile towards the target angle
+                if (missile.rotation !== targetAngle) {
+                    // Calculate difference between the current angle and targetAngle
+                    var delta = targetAngle - missile.rotation;
+
+                    // Keep it in range from -180 to 180 to make the most efficient turns.
+                    if (delta > Math.PI) delta -= Math.PI * 2;
+                    if (delta < -Math.PI) delta += Math.PI * 2;
+
+                    if (delta > 0) {
+                        // Turn clockwise
+                        missile.angle += missile.TURN_RATE;
+                    } else {
+                        // Turn counter-clockwise
+                        missile.angle -= missile.TURN_RATE;
+                    }
+
+                    // Just set angle to target angle if they are close
+                    if (Math.abs(delta) < this.game.math.degToRad(missile.TURN_RATE)) {
+                        missile.rotation = targetAngle;
+                    }
+                }
+            }
+
+            missile.body.velocity.x = Math.cos(missile.rotation) * missile.speed;
+            missile.body.velocity.y = Math.sin(missile.rotation) * missile.speed;
+
+            if (missile.lifespan < this.game.time.now) {
+                this.main.detonate(missile, 50, false, 'destroy');
+            }
+            if (missile.launchtime < this.game.time.now) {
+                missile.animations.play('missile-cruise', 20, true);
+            }
+        }
+    }, this);
 };

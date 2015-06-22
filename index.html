@@ -7,7 +7,7 @@
     <meta name="viewport" content="minimal-ui">
 
     <!-- Include Phaser library - testing Release Candidate 7 -->
-    <script type="text/javascript" src="js/library/phaser2.2.0.js"></script>
+    <script type="text/javascript" src="js/library/phaser2.3.0min.js"></script>
     <!--<script type="text/javascript" src="js/library/phaser-debug.js"></script>-->
 
     <!-- states -->
@@ -15,7 +15,10 @@
     <script src="js/game/states/Preload.js"></script>
     <script src="js/game/states/MainMenu.js"></script>
     <script src="js/game/states/Game.js"></script>
-    <script src="js/game/prefabs/Alien.js"></script>
+    <script src="js/game/prefabs/aliens/Alien.js"></script>
+    <script src="js/game/prefabs/aliens/Magnet.js"></script>
+    <script src="js/game/prefabs/aliens/Sputnik.js"></script>
+    <script src="js/game/prefabs/aliens/Drill.js"></script>
     <script src="js/game/prefabs/Player.js"></script>
     <script src="js/game/prefabs/Missile.js"></script>
     <script src="js/game/prefabs/Laser.js"></script>
@@ -26,6 +29,7 @@
         body {
             margin:0px;
             padding:0px;
+            cursor:pointer;
         }
     </style>
 </head>

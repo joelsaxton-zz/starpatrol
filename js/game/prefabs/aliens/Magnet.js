@@ -2,28 +2,31 @@
  * Created by joelsaxton on 11/10/14.
  */
 
-var Alien = function(game, player, scale, x, y, key, frame){
-    key = 'alien';
-    Phaser.Sprite.call(this, game, x, y, key, frame);
+var Magnet = function(main, player, scale, x, y, key, frame){
+    key = 'magnet';
+    Phaser.Sprite.call(this, main.game, x, y, key, frame);
 
+    this.main = main;
+    this.type = key;
     this.alienScale = scale;
     this.id = this.game.rnd.uuid();
     this.anchor.setTo(0.5);
     this.scale.setTo(scale * 2);
-    this.MAXHEALTH = 100;
+    this.MAXHEALTH = 150;
     this.health = this.MAXHEALTH;
     this.MAXCHARGE = 100;
-    this.BULLET_DAMAGE = 0;
+    this.WEAPON_DAMAGE = 25;
+    this.KILL_SCORE = 2000;
     this.MAXTHRUST = this.alienScale * 50;
-    this.MAXVELOCITY = this.alienScale * 3800;
+    this.MAXVELOCITY = this.alienScale * 4000;
     this.BULLETSCALE = this.alienScale * 0.4;
     this.BULLETLOCKDISTANCE = this.alienScale * 2000;
     this.BULLETACCELERATION = this.alienScale * 4000;
     this.MAXBULLETSPEED = this.alienScale * 6000;
     this.MAXBULLETDISTANCE = this.alienScale * 6000;
-    this.MAXTRACTORBEAMDISTANCE = this.alienScale * 3000;
-    this.TRACTORBEAMFORCE = this.alienScale * 6000;
-    this.BULLET_DISCHARGE = 65;
+    this.MAXTRACTORBEAMDISTANCE = this.alienScale * 4000;
+    this.TRACTORBEAMFORCE = this.alienScale * 8000;
+    this.BULLET_DISCHARGE = 100;
     this.charge = this.MAXCHARGE;
     this.tractorBeam = this.MAXCHARGE;
     this.isTractorBeamOn = false;
@@ -40,49 +43,27 @@ var Alien = function(game, player, scale, x, y, key, frame){
     this.isAttacking = true;
     this.isSlowing = false;
     this.bullets = this.game.add.group();
+    this.MAGNET_DAMAGE = 1;
+    this.hasTractorBeam = true;
 
     // Sounds
     this.tractorBeamSound = this.game.add.audio('tractor-beam');
     this.bulletSound = this.game.add.audio('bullet');
 
+    // Animations
+    this.animations.add('cruise', [0]);
+    this.animations.add('attract', [1,2,3,2,3,2]);
+
 };
 
-Alien.prototype = Object.create(Phaser.Sprite.prototype);
-Alien.prototype.constructor = Alien;
+Magnet.prototype = Object.create(Phaser.Sprite.prototype);
+Magnet.prototype.constructor = Magnet;
+Magnet.prototype.avoidObstacle = Alien.prototype.avoidObstacle;
+Magnet.prototype.die = Alien.prototype.die;
+Magnet.prototype.createBullet = Alien.prototype.createBullet;
+Magnet.prototype.onRevived = Alien.prototype.onRevived;
 
-Alien.prototype.onRevived = function() {
-    this.charge = this.MAXCHARGE;
-    this.health = this.MAXHEALTH;
-    this.alive = true;
-    this.isAttacking = true;
-    this.isSlowing = false;
-};
-
-Alien.prototype.avoidObstacle = function() {
-    this.isAttacking = false;
-    this.isTractorBeamOn = false;
-    this.tractorBeamSound.stop();
-    this.body.allowGravity = false;
-    var angle = this.game.rnd.realInRange(-180, 180);
-    this.game.add.tween(this).to({angle: this.angle + angle}, 500, Phaser.Easing.Linear.None)
-        .start()
-        .onComplete.add(function(){
-            this.body.allowGravity = true;
-            this.isAttacking = true;
-        }, this);
-};
-
-Alien.prototype.createBullet = function(x, y) {
-    var bullet = this.bullets.getFirstDead();
-    if (!bullet) {
-        bullet = new Bullet(this.game, this.BULLETSCALE, x, y);
-        this.bullets.add(bullet);
-    }
-    bullet.reset(this.x, this.y);
-    bullet.revive();
-};
-
-Alien.prototype.update = function() {
+Magnet.prototype.update = function() {
     var targetAngle = this.game.math.angleBetween(
         this.x, this.y,
         this.target.x, this.target.y
@@ -90,15 +71,9 @@ Alien.prototype.update = function() {
 
     // ATTACK
     if (this.isAttacking) {
-        // Alien speeds up
+        // Magnet speeds up
         if (this.speed < this.MAXVELOCITY) {
             this.speed += this.MAXTHRUST;
-        }
-
-        // Alien observes minimum distance
-        if (this.game.physics.arcade.distanceBetween(this, this.target) < this.minAttackDistance) {
-            this.isSlowing = true;
-            this.isAttacking = false;
         }
 
         if (this.rotation !== targetAngle) {
@@ -127,7 +102,7 @@ Alien.prototype.update = function() {
         this.body.velocity.y = Math.sin(this.rotation) * this.speed;
 
         // Use tractor beam
-        if (!this.isTractorBeamOn && this.tractorBeam >= 90 && this.game.physics.arcade.distanceBetween(this, this.target) < this.MAXTRACTORBEAMDISTANCE) {
+        if (!this.isTractorBeamOn && this.tractorBeam == 100 && this.game.physics.arcade.distanceBetween(this, this.target) < this.MAXTRACTORBEAMDISTANCE) {
             this.isTractorBeamOn = true;
             this.animations.play('attract', 20, true);
             this.tractorBeamSound.play('', 0, 0.1, true, true);
@@ -142,11 +117,18 @@ Alien.prototype.update = function() {
             this.isTractorBeamOn = false;
             this.animations.play('cruise', 20);
             this.tractorBeamSound.stop();
+
+            // Magnet observes minimum distance after using tractor beam
+            if (this.game.physics.arcade.distanceBetween(this, this.target) < this.minAttackDistance) {
+                this.isSlowing = true;
+                this.isAttacking = false;
+                this.avoidObstacle();
+            }
         }
 
         // Fire heat seeking bullet
         if (this.charge >= this.BULLET_DISCHARGE) { // @todo change the countliving stuff
-            if (this.bullets.countLiving() < 3 && this.game.physics.arcade.distanceBetween(this, this.target) < this.MAXBULLETDISTANCE) {
+            if (this.bullets.countLiving() < 2 && this.game.physics.arcade.distanceBetween(this, this.target) < this.MAXBULLETDISTANCE) {
                 this.bulletSound.play('', 0, 1, false, true);
                 this.createBullet(this.x, this.y);
                 this.charge -= this.BULLET_DISCHARGE;
@@ -176,5 +158,29 @@ Alien.prototype.update = function() {
 
     } else { // TWEEN - not attacking, spinning and pulling back instead
         this.avoidObstacle();
+    }
+
+    if (this.wasHit) {
+        this.avoidObstacle();
+        this.wasHit = false;
+    }
+};
+
+Magnet.prototype.updateWeapons = function()
+{
+    if (this.alive) {
+        // Heat seeking bullet
+        this.bullets.forEach(function (bullet) {
+            if (bullet) {
+                if (this.game.physics.arcade.distanceBetween(bullet, this.target) > this.BULLETLOCKDISTANCE) {
+                    this.game.physics.arcade.accelerateToObject(bullet, this.target, this.BULLETACCELERATION, this.MAXBULLETSPEED, this.MAXBULLETSPEED);
+                } else {
+                    this.game.physics.arcade.moveToObject(bullet, this.target, parseInt(this.target.body.speed) * 10);
+                }
+                if (bullet.lifespan < this.game.time.now) {
+                    this.main.detonate(bullet, 100, false, 'destroy');
+                }
+            }
+        }, this);
     }
 };

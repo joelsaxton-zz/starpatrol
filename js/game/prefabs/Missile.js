@@ -18,11 +18,11 @@ var Missile = function(isNuke, game, missileScale, x, y, angle, key, frame){
     this.thrust = (isNuke) ? 12 : 16;
     this.missileLaunchTime = (isNuke) ? 2000 : 500;
     this.missileLifeSpan = (isNuke) ? 24000 : 10000;
-    this.TURN_RATE = (isNuke) ? 2.0 : 3.0; // turn rate in degrees/frame
-    this.MAX_SPEED = (isNuke) ? 800 : 500;
+    this.TURN_RATE = (isNuke) ? 2.0 : 4.0; // turn rate in degrees/frame
+    this.MAX_SPEED = (isNuke) ? 800 : 600;
     this.WOBBLE_LIMIT = (isNuke) ? 5 : 10; // degrees
     this.WOBBLE_SPEED = (isNuke) ? 300 : 200; // milliseconds
-    this.damage = (isNuke) ? 100 : 20;
+    this.damage = (isNuke) ? 250 : 25;
     this.speed = 0;
 
     this.game.add.tween(this)
