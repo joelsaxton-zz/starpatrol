@@ -11,15 +11,15 @@ var Drill = function(main, player, scale, x, y, key, frame){
     this.alienScale = scale;
     this.id = this.game.rnd.uuid();
     this.anchor.setTo(0.5);
-    this.scale.setTo(scale * 1.8);
+    this.scale.setTo(scale * 2);
     this.MAXHEALTH = 100;
     this.health = this.MAXHEALTH;
     this.MAXCHARGE = 100;
-    this.DRILL_DAMAGE = 1;
-    this.MAXTHRUST = this.alienScale * 40;
-    this.MAXVELOCITY = this.alienScale * 2800;
-    this.ANGRY_VELOCITY = this.MAXVELOCITY * 2;
-    this.KILL_SCORE = 1000;
+    this.DRILL_DAMAGE = 1.5;
+    this.MAXTHRUST = this.alienScale * 10;
+    this.MAXVELOCITY = this.alienScale * 2500;
+    this.ANGRY_VELOCITY = this.MAXVELOCITY * 3;
+    this.KILL_SCORE = 2000;
     this.DRILL_DISTANCE = 50;
     this.charge = this.MAXCHARGE;
     this.tractorBeam = this.MAXCHARGE;
@@ -36,17 +36,32 @@ var Drill = function(main, player, scale, x, y, key, frame){
     this.minAttackDistance = 100;
     this.isAttacking = true;
     this.isSlowing = false;
-    this.ANGRY_HEALTH = 30;
+    this.ANGRY_HEALTH = 60;
     this.tractorBeam = 0;
-    this.bullets = [];
     this.wasHit = false;
     this.hasTractorBeam = false;
+    this.bullets = this.game.add.group();
+    this.hasDrill = true;
+    this.hasBullets = true;
+
+    this.BULLETLOCKDISTANCE = this.alienScale * 2000;
+    this.BULLETACCELERATION = this.alienScale * 4000;
+    this.MAXBULLETSPEED = this.alienScale * 6000;
+    this.MINBULLETDISTANCE = this.alienScale * 2000;
+    this.MAXBULLETDISTANCE = this.alienScale * 6000;
+    this.BULLET_DISCHARGE = 100;
+    this.WEAPON_DAMAGE = 10;
 
     // Sounds
     this.drillSound = this.game.add.audio('drill');
+    this.bulletSound = this.game.add.audio('bullet');
+
 };
 
 Drill.prototype = Object.create(Phaser.Sprite.prototype);
+Drill.prototype.createBullet = Alien.prototype.createBullet;
+Drill.prototype.avoidObstacle = Alien.prototype.avoidObstacle;
+Drill.prototype.updateWeapons = Alien.prototype.updateWeapons;
 Drill.prototype.constructor = Drill;
 
 Drill.prototype.onRevived = function() {
@@ -57,13 +72,14 @@ Drill.prototype.onRevived = function() {
 
 };
 
-Drill.prototype.avoidObstacle = Alien.prototype.avoidObstacle;
-
 Drill.prototype.update = function() {
     var targetAngle = this.game.math.angleBetween(
         this.x, this.y,
         this.target.x, this.target.y
     );
+
+    // DISTANCE
+    var distance = this.game.physics.arcade.distanceBetween(this, this.target);
 
     // ATTACK
     if (this.isAttacking) {
@@ -131,27 +147,20 @@ Drill.prototype.update = function() {
         this.avoidObstacle();
     }
 
+    // Fire heat seeking bullet
+    if (this.charge >= this.BULLET_DISCHARGE) {
+        if (distance < this.MAXBULLETDISTANCE && distance > this.MINBULLETDISTANCE) {
+            this.bulletSound.play('', 0, 1, false, true);
+            this.createBullet(this.x, this.y);
+            this.charge -= this.BULLET_DISCHARGE;
+        }
+    }
+
     if (this.wasHit) {
         this.avoidObstacle();
         this.wasHit = false;
     }
 };
-
-Drill.prototype.updateWeapons = function () {
-    // Attack with drill if close enough
-    if (this.alive) {
-        var distance = this.game.physics.arcade.distanceBetween(this, this.target);
-        if (distance <= this.DRILL_DISTANCE && this.charge > 0) {
-            this.drillSound.play('', 0, 0.5, false, false);
-            this.charge--;
-            this.target.health -= this.DRILL_DAMAGE;
-            var explosionAnimation = this.main.smallExplosions.getFirstExists(false);
-            explosionAnimation.reset(this.target.x, this.target.y);
-            explosionAnimation.play('explosion', 500, false, true);
-        }
-    }
-};
-
 
 Drill.prototype.die = function()
 {

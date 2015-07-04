@@ -70,4 +70,4 @@ Scoreboard.prototype.show = function(score, gameOverSound, explosionSound, victo
 
 Scoreboard.prototype.restart = function(){
     this.game.state.start('Game', true, false);
-}
+};

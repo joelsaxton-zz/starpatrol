@@ -17,7 +17,7 @@ var Player = function(main, x, y, frame){
     this.MAXHEALTH = 1000;
     this.MAXCHARGE = 1000;
 
-    this.SLINGSHOT_MULTIPLIER = 2;
+    this.SLINGSHOT_MULTIPLIER = 6;
     this.TURNRATE_INCREMENT = 0.25;
     this.THRUST_INCREMENT = this.playerScale * 20;
     this.VELOCITY_INCREMENT = this.playerScale * 240;
@@ -29,18 +29,18 @@ var Player = function(main, x, y, frame){
     this.VELOCITY = this.playerScale * this.ENGINE * 2000;
     this.SLINGSHOT_VELOCITY = this.VELOCITY * this.SLINGSHOT_MULTIPLIER;
     this.THRUST = this.playerScale * this.ENGINE * 20;
-    this.HEALTH = 100;
+    this.HEALTH = 10;
     this.CHARGE = 100;
     this.TURNRATE = this.ENGINE;
 
     this.health = this.HEALTH;
     this.charge = this.CHARGE;
     this.MISSILESCALE = this.playerScale * 0.4;
-    this.LASERSCALE = this.playerScale * 0.5;
+    this.LASERSCALE = this.playerScale * 1.6;
     this.NUKESCALE = this.playerScale * 0.5;
 
     this.MAX_MISSILES = 10;
-    this.MAX_NUKES = 3;
+    this.MAX_NUKES = 1;
     this.ENGINE_COST_MULTIPLIER = 1.5;
     this.WARP_DISCHARGE = 0.2;
     this.SHIELD_DISCHARGE = 4;
@@ -75,10 +75,10 @@ var Player = function(main, x, y, frame){
 
     // Upgrades
     this.engineCost = this.ENGINE * 1000;
-    this.nukeCost = 1000;
-    this.missileCost = 100;
-    this.shieldCost = 10000;
-    this.warpCost = 16000;
+    this.nukeCost = 3000;
+    this.missileCost = 300;
+    this.shieldCost = 16000;
+    this.warpCost = 32000;
     this.chargeCost = 1000;
     this.armorCost = 1000;
 
@@ -263,15 +263,10 @@ Player.prototype.updateWeapons = function() {
 
             var targetAngle = 0;
 
-            if (this.main.alien) {
+            if (this.main.alien && !this.main.alien.isInvisible) {
                 targetAngle = this.game.math.angleBetween(
                     missile.x, missile.y,
                     this.main.alien.x, this.main.alien.y
-                );
-            } else {
-                targetAngle = this.game.math.angleBetween(
-                    missile.x, missile.y,
-                    this.x, this.y
                 );
             }
 

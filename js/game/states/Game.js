@@ -1,17 +1,18 @@
 /**
  * Created by joelsaxton on 11/8/14.
  */
-StarPatrol.Game = function(){
+StarPatrol.Game = function () {
 
     // Scaled physics and values based on this.GAME_SCALE
     this.GAME_SCALE = 0.10;
-    this.GAMESIZE = this.GAME_SCALE * 500000;
-    this.GRAVITY = this.GAME_SCALE * 1200;
-    this.GRAVITYRANGE = this.GAME_SCALE * 5000;
+    this.GAMESIZE = this.GAME_SCALE * 750000;
+    this.GRAVITY = this.GAME_SCALE * 2000;
+    this.GRAVITYRANGE = this.GAME_SCALE * 8000;
     this.EXPLOSIONSCALE = this.GAME_SCALE * 10;
     this.SMALL_EXPLOSIONSCALE = this.GAME_SCALE * 3;
-    this.PLANETSCALE = this.GAME_SCALE * 16;
-    this.MAP_PLANETSCALE = this.GAME_SCALE * 80;
+    this.PLANETSCALE = this.GAME_SCALE * 20;
+    this.MAP_PLANETSCALE = this.GAME_SCALE * 120;
+    this.DOCK_DISTANCE = this.GAME_SCALE * 3000;
 
     // Timers
     this.rechargeTimer = 0;
@@ -31,7 +32,7 @@ StarPatrol.Game = function(){
     this.mapOffset = 4;
     this.mapGameRatio = this.mapSize / this.GAMESIZE;
     this.asteroidDensity = 3;
-    this.TOTALASTEROIDS = parseInt(this.GAMESIZE/2000) * this.asteroidDensity;
+    this.TOTALASTEROIDS = parseInt(this.GAMESIZE / 2000) * this.asteroidDensity;
     this.TOTALALIENS = 1; // How many appear at any one time
     this.orbitSpeedModifier = 0.8;
     this.gameOver = false;
@@ -44,7 +45,7 @@ StarPatrol.Game = function(){
 };
 
 StarPatrol.Game.prototype = {
-    create: function() {
+    create: function () {
         // Enable physics
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
         this.alienTimer = this.game.time.now + this.alienInterval;
@@ -131,14 +132,14 @@ StarPatrol.Game.prototype = {
         // Set properties
         this.planets.forEach(function (planet) {
             planet.period = 0;
-            planet.periodOffset = this.game.rnd.realInRange(-10,10);
+            planet.periodOffset = this.game.rnd.realInRange(-10, 10);
             planet.anchor.setTo(0.5, 0.5);
             planet.scale.setTo(this.PLANETSCALE);
             this.game.physics.arcade.enableBody(planet);
             planet.body.immovable = true;
             planet.map.fixedToCamera = true;
             planet.map.anchor.setTo(0.5, 0.5);
-            planet.map.scale.setTo(this.mapGameRatio*this.MAP_PLANETSCALE);
+            planet.map.scale.setTo(this.mapGameRatio * this.MAP_PLANETSCALE);
         }, this);
 
         // Sun
@@ -147,7 +148,7 @@ StarPatrol.Game.prototype = {
         this.game.physics.arcade.enableBody(this.sun);
         this.sun.body.immovable = true;
         this.sun.map.anchor.setTo(0.5);
-        this.sun.map.scale.setTo(this.mapGameRatio*this.MAP_PLANETSCALE * 0.5);
+        this.sun.map.scale.setTo(this.mapGameRatio * this.MAP_PLANETSCALE * 0.5);
         this.sun.map.x += this.sun.map.width * 0.5;
         this.sun.map.fixedToCamera = true;
         this.sun.radius = this.PLANETSCALE * 400 * 0.5;
@@ -166,7 +167,7 @@ StarPatrol.Game.prototype = {
 
         // Set Camera
         this.game.camera.follow(this.player);
-        this.game.camera.deadzone = new Phaser.Rectangle(this.game.width/2, this.game.height/2, this.game.width/8, this.game.height/8);
+        this.game.camera.deadzone = new Phaser.Rectangle(this.game.width / 2, this.game.height / 2, this.game.width / 8, this.game.height / 8);
         this.game.camera.focusOnXY(0, 0);
 
         this.asteroids = this.game.add.group();
@@ -181,8 +182,7 @@ StarPatrol.Game.prototype = {
 
         //  Create small explosion pool
         this.smallExplosions = game.add.group();
-        for (var i = 0; i < 10; i++)
-        {
+        for (var i = 0; i < 10; i++) {
             var explosionAnimation = this.smallExplosions.create(0, 0, 'explosion', [0], false);
             explosionAnimation.anchor.setTo(0.5, 0.5);
             explosionAnimation.scale.setTo(this.SMALL_EXPLOSIONSCALE);
@@ -191,8 +191,7 @@ StarPatrol.Game.prototype = {
 
         //  Create explosion pool
         this.explosions = game.add.group();
-        for (var i = 0; i < 50; i++)
-        {
+        for (var i = 0; i < 50; i++) {
             var explosionAnimation = this.explosions.create(0, 0, 'explosion', [0], false);
             explosionAnimation.anchor.setTo(0.5, 0.5);
             explosionAnimation.scale.setTo(this.EXPLOSIONSCALE);
@@ -201,8 +200,7 @@ StarPatrol.Game.prototype = {
 
         //  Create big Explosion pool
         this.bigExplosions = game.add.group();
-        for (var i = 0; i < 20; i++)
-        {
+        for (var i = 0; i < 20; i++) {
             var explosionAnimation = this.bigExplosions.create(0, 0, 'big-explosion', [0], false);
             explosionAnimation.anchor.setTo(0.5, 0.5);
             explosionAnimation.scale.setTo(this.EXPLOSIONSCALE);
@@ -210,104 +208,104 @@ StarPatrol.Game.prototype = {
         }
 
         // Add backdrop
-        var bmd = game.add.bitmapData(120,180);
+        var bmd = game.add.bitmapData(120, 180);
         bmd.ctx.beginPath();
-        bmd.ctx.rect(0,0,120,180);
+        bmd.ctx.rect(0, 0, 120, 180);
         bmd.ctx.fillStyle = '#000000';
         bmd.ctx.fill();
         this.blackBackdrop = game.add.sprite(0, 0, bmd);
         this.blackBackdrop.fixedToCamera = true;
 
         // Set text bitmaps
-        this.scoreText = this.game.add.bitmapText(30,10, 'minecraftia', '', 10);
-        this.aliensKilledText = this.game.add.bitmapText(30,30, 'minecraftia', '', 10);
-        this.healthIcon = this.game.add.sprite(10,48, 'armor');
+        this.scoreText = this.game.add.bitmapText(30, 10, 'minecraftia', '', 10);
+        this.aliensKilledText = this.game.add.bitmapText(30, 30, 'minecraftia', '', 10);
+        this.healthIcon = this.game.add.sprite(10, 48, 'armor');
         this.healthIcon.scale.setTo(0.3);
-        this.chargeIcon = this.game.add.sprite(10,68, 'charge');
+        this.chargeIcon = this.game.add.sprite(10, 68, 'charge');
         this.chargeIcon.scale.setTo(0.3);
-        this.engineIcon = this.game.add.sprite(10,88, 'engine');
+        this.engineIcon = this.game.add.sprite(10, 88, 'engine');
         this.engineIcon.scale.setTo(0.3);
-        this.killsIcon = this.game.add.sprite(10,28, 'kills');
+        this.killsIcon = this.game.add.sprite(10, 28, 'kills');
         this.killsIcon.scale.setTo(0.3);
-        this.cashIcon = this.game.add.sprite(10,8, 'dollars');
+        this.cashIcon = this.game.add.sprite(10, 8, 'dollars');
         this.cashIcon.scale.setTo(0.3);
 
         // Setup store
         this.engineBuyIcon = this.game.add.sprite(10, 200, 'engine-buy');
         this.engineBuyIcon.scale.setTo(0.4);
-        this.engineBuyText = this.game.add.bitmapText(70,216, 'minecraftia', '$' + this.player.engineCost, 10);
+        this.engineBuyText = this.game.add.bitmapText(70, 216, 'minecraftia', '$' + this.player.engineCost, 10);
         this.engineBuyIcon.inputEnabled = true;
         this.engineBuyIcon.events.onInputDown.add(this.buyItem, this);
 
         this.healthBuyIcon = this.game.add.sprite(10, 270, 'armor-buy');
         this.healthBuyIcon.scale.setTo(0.4);
-        this.healthBuyText = this.game.add.bitmapText(70,286, 'minecraftia', '$' + this.player.armorCost, 10);
+        this.healthBuyText = this.game.add.bitmapText(70, 286, 'minecraftia', '$' + this.player.armorCost, 10);
         this.healthBuyIcon.inputEnabled = true;
         this.healthBuyIcon.events.onInputDown.add(this.buyItem, this);
 
         this.chargeBuyIcon = this.game.add.sprite(10, 340, 'charge-buy');
         this.chargeBuyIcon.scale.setTo(0.4);
-        this.chargeBuyText = this.game.add.bitmapText(70,356, 'minecraftia', '$' + this.player.chargeCost, 10);
+        this.chargeBuyText = this.game.add.bitmapText(70, 356, 'minecraftia', '$' + this.player.chargeCost, 10);
         this.chargeBuyIcon.inputEnabled = true;
         this.chargeBuyIcon.events.onInputDown.add(this.buyItem, this);
 
         this.missileBuyIcon = this.game.add.sprite(10, 410, 'missile-buy');
         this.missileBuyIcon.scale.setTo(0.4);
-        this.missileBuyText = this.game.add.bitmapText(70,426, 'minecraftia', '$' + this.player.missileCost, 10);
+        this.missileBuyText = this.game.add.bitmapText(70, 426, 'minecraftia', '$' + this.player.missileCost, 10);
         this.missileBuyIcon.inputEnabled = true;
         this.missileBuyIcon.events.onInputDown.add(this.buyItem, this);
 
         this.nukeBuyIcon = this.game.add.sprite(10, 480, 'nuke-buy');
         this.nukeBuyIcon.scale.setTo(0.4);
-        this.nukeBuyText = this.game.add.bitmapText(70,496, 'minecraftia', '$' + this.player.nukeCost, 10);
+        this.nukeBuyText = this.game.add.bitmapText(70, 496, 'minecraftia', '$' + this.player.nukeCost, 10);
         this.nukeBuyIcon.inputEnabled = true;
         this.nukeBuyIcon.events.onInputDown.add(this.buyItem, this);
 
         this.shieldBuyIcon = this.game.add.sprite(10, 550, 'shield-buy');
         this.shieldBuyIcon.scale.setTo(0.4);
-        this.shieldBuyText = this.game.add.bitmapText(70,566, 'minecraftia', '$' + this.player.shieldCost, 10);
+        this.shieldBuyText = this.game.add.bitmapText(70, 566, 'minecraftia', '$' + this.player.shieldCost, 10);
         this.shieldBuyIcon.inputEnabled = true;
         this.shieldBuyIcon.events.onInputDown.add(this.buyItem, this);
 
         this.warpBuyIcon = this.game.add.sprite(10, 620, 'warp-buy');
         this.warpBuyIcon.scale.setTo(0.4);
-        this.warpBuyText = this.game.add.bitmapText(70,636, 'minecraftia', '$' + this.player.warpCost, 10);
+        this.warpBuyText = this.game.add.bitmapText(70, 636, 'minecraftia', '$' + this.player.warpCost, 10);
         this.warpBuyIcon.inputEnabled = true;
         this.warpBuyIcon.events.onInputDown.add(this.buyItem, this);
 
-        var bmd = game.add.bitmapData(84,10);
+        var bmd = game.add.bitmapData(84, 10);
         bmd.ctx.beginPath();
-        bmd.ctx.rect(0,0,128,128);
+        bmd.ctx.rect(0, 0, 128, 128);
         bmd.ctx.fillStyle = '#ffffff';
         bmd.ctx.fill();
         this.healthBarOutline = game.add.sprite(30, 51, bmd);
         this.chargeBarOutline = game.add.sprite(30, 71, bmd);
         this.engineBarOutline = game.add.sprite(30, 91, bmd);
 
-        var bmd = game.add.bitmapData(82,8);
+        var bmd = game.add.bitmapData(82, 8);
         bmd.ctx.beginPath();
-        bmd.ctx.rect(0,0,128,128);
+        bmd.ctx.rect(0, 0, 128, 128);
         bmd.ctx.fillStyle = '#000000';
         bmd.ctx.fill();
         this.healthBarContainer = game.add.sprite(31, 52, bmd);
         this.chargeBarContainer = game.add.sprite(31, 72, bmd);
         this.engineBarContainer = game.add.sprite(31, 92, bmd);
 
-        var bmd = game.add.bitmapData(80,6);
+        var bmd = game.add.bitmapData(80, 6);
         bmd.ctx.beginPath();
-        bmd.ctx.rect(0,0,128,128);
+        bmd.ctx.rect(0, 0, 128, 128);
         bmd.ctx.fillStyle = '#00f910';
         bmd.ctx.fill();
         this.healthBar = game.add.sprite(32, 53, bmd);
         this.chargeBar = game.add.sprite(32, 73, bmd);
         this.engineBar = game.add.sprite(32, 93, bmd);
 
-        this.warpText = this.game.add.bitmapText(10,110, 'minecraftia', 'Warp Drive: ' + (this.player.hasWarpDrive ? this.player.warpDrive : 'none'), 8);
-        this.shieldText = this.game.add.bitmapText(10,120, 'minecraftia', 'Shields: ' + (this.player.hasShields ? this.player.shieldStrength : 'none'), 8);
-        this.laserText = this.game.add.bitmapText(10,130, 'minecraftia', 'Lasers: ' + (this.player.charge >= this.player.LASER_DISCHARGE ? 'ready' : 'charging'), 8);
-        this.nukeText = this.game.add.bitmapText(10,140, 'minecraftia', 'Nukes: ' + this.player.nukes, 8);
-        this.missileText = this.game.add.bitmapText(10,150, 'minecraftia', 'Missiles: ' + this.player.missiles, 8);
-        this.bonusText = this.game.add.bitmapText(10,164, 'minecraftia', 'Bonus: $' + this.bonus, 8);
+        this.warpText = this.game.add.bitmapText(10, 110, 'minecraftia', 'Warp Drive: ' + (this.player.hasWarpDrive ? this.player.warpDrive : 'none'), 8);
+        this.shieldText = this.game.add.bitmapText(10, 120, 'minecraftia', 'Shields: ' + (this.player.hasShields ? this.player.shieldStrength : 'none'), 8);
+        this.laserText = this.game.add.bitmapText(10, 130, 'minecraftia', 'Lasers: ' + (this.player.charge >= this.player.LASER_DISCHARGE ? 'ready' : 'charging'), 8);
+        this.nukeText = this.game.add.bitmapText(10, 140, 'minecraftia', 'Nukes: ' + this.player.nukes, 8);
+        this.missileText = this.game.add.bitmapText(10, 150, 'minecraftia', 'Missiles: ' + this.player.missiles, 8);
+        this.bonusText = this.game.add.bitmapText(10, 164, 'minecraftia', 'Bonus: $' + this.bonus, 8);
         this.laserText.tint = 0xFF0000; //
         this.bonusText.tint = 0x66CD00;
         this.scoreText.fixedToCamera = true;
@@ -368,13 +366,15 @@ StarPatrol.Game.prototype = {
         this.spacebar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         this.shiftkey = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
         this.nKey = game.input.keyboard.addKey(Phaser.Keyboard.N);
-        this.spacebar.onDown.add(this.player.fireWeapon,this.player);
-        this.nKey.onDown.add(this.nextWeapon,this);
+        this.dKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
+        this.spacebar.onDown.add(this.player.fireWeapon, this.player);
+        this.nKey.onDown.add(this.nextWeapon, this);
+        this.dKey.onDown.add(this.dockStation, this);
     },
 
-    update: function() {
+    update: function () {
         if (!this.gameOver) {
-            if (this.player.isAlive){
+            if (this.player.isAlive) {
                 this.updateAllPanels();
                 this.updateCamera();
                 this.checkPlayerInputs(); // always check inputs before applying gravity
@@ -388,7 +388,7 @@ StarPatrol.Game.prototype = {
                 this.player.bringToTop();
             }
 
-            if (this.alien){
+            if (this.alien) {
                 if (this.alien.alive) {
                     this.alien.bringToTop();
                     this.updateAlien();
@@ -401,7 +401,7 @@ StarPatrol.Game.prototype = {
         }
     },
 
-    updatePlanetPositions: function() {
+    updatePlanetPositions: function () {
         // Update Planets and their orbits
         this.map.bringToTop();
         this.sun.map.bringToTop();
@@ -431,7 +431,7 @@ StarPatrol.Game.prototype = {
         }
     },
 
-    dockPlayer: function() {
+    dockPlayer: function () {
         this.earth.scale.setTo(1.5);
         this.earth.angle -= 0.01;
         this.station.scale.setTo(1);
@@ -445,7 +445,7 @@ StarPatrol.Game.prototype = {
         this.upgradePanelVisible = true;
     },
 
-    disembarkPlayer: function() {
+    disembarkPlayer: function () {
         this.earth.scale.setTo(0.4);
         this.station.scale.setTo(0.2);
         this.game.camera.follow(this.player);
@@ -457,7 +457,7 @@ StarPatrol.Game.prototype = {
         this.upgradePanelVisible = false;
     },
 
-    checkWin: function() {
+    checkWin: function () {
         if (this.player.aliensKilled == 100) { // @todo revisit
             this.gameMusic.stop();
             this.warpLoopSound.stop();
@@ -470,7 +470,7 @@ StarPatrol.Game.prototype = {
         }
     },
 
-    updateAllPanels: function() {
+    updateAllPanels: function () {
         this.healthBar.width = this.player.health * 0.08;
         this.chargeBar.width = this.player.charge * 0.08;
         this.engineBar.width = this.player.ENGINE * 8;
@@ -560,32 +560,32 @@ StarPatrol.Game.prototype = {
         }
     },
 
-    updateHealth: function() {
+    updateHealth: function () {
         if (this.player.health <= 0) {
             this.killPlayer(true);
             this.gameOver = true;
         }
 
         // Subtract health if shield was brought below zero
-        if (this.player.shieldStrength < 0){
+        if (this.player.shieldStrength < 0) {
             this.player.health += this.player.shieldStrength;
             this.player.shieldStrength = 0;
         }
 
         // Update alien health
         if (this.alien) {
-            if (this.alien.health <= 0 && this.alien.alive){
+            if (this.alien.health <= 0 && this.alien.alive) {
                 this.killAlien();
             }
         }
     },
 
-    updateCamera: function() {
+    updateCamera: function () {
         this.background.tilePosition.x = -game.camera.x;
         this.background.tilePosition.y = -game.camera.y;
     },
 
-    updateMapPositions: function(){
+    updateMapPositions: function () {
         this.player.map.fixedToCamera = false;
         this.player.map.x = this.game.width - this.mapSize + parseInt(this.player.x * this.mapGameRatio) - this.mapOffset;
         this.player.map.y = parseInt(this.player.y * this.mapGameRatio) + this.mapOffset;
@@ -601,7 +601,7 @@ StarPatrol.Game.prototype = {
         }
     },
 
-    nextWeapon: function() {
+    nextWeapon: function () {
         switch (this.player.selectedWeapon) {
             case 'laser':
                 this.player.selectedWeapon = 'nuke';
@@ -623,19 +623,23 @@ StarPatrol.Game.prototype = {
 
     checkPlayerInputs: function () {
         // Constrain velocity
+
+        // Check if player is stuck in alien tar
+        var tar = (this.alien && this.alien.tar) ? this.alien.tar : 1;
+
         if (this.player.isWarping) {
             this.player.animations.play('warp', 10, true);
-            this.constrainVelocity(this.player, this.player.WARPVELOCITY);
+            this.constrainVelocity(this.player, this.player.WARPVELOCITY / tar);
         } else if (this.player.inGravitationalField) {
-            this.constrainVelocity(this.player, this.player.SLINGSHOT_VELOCITY);
+            this.constrainVelocity(this.player, this.player.SLINGSHOT_VELOCITY / tar);
         } else {
-            this.constrainVelocity(this.player, this.player.VELOCITY);
+            this.constrainVelocity(this.player, this.player.VELOCITY / tar);
         }
 
         // Decide animation
         if (!this.cursors.up.isDown) {
             if (!this.player.isShielded && !this.player.isWarping) {
-              this.player.animations.play('drift', 10, true);
+                this.player.animations.play('drift', 10, true);
             }
         }
 
@@ -677,8 +681,8 @@ StarPatrol.Game.prototype = {
             this.player.warpDrive -= this.player.WARP_DISCHARGE;
             var x_component = Math.cos((this.player.angle) * Math.PI / 180);
             var y_component = Math.sin((this.player.angle) * Math.PI / 180);
-            this.player.body.velocity.x += this.player.THRUST * this.player.warpModifier * x_component;
-            this.player.body.velocity.y += this.player.THRUST * this.player.warpModifier * y_component;
+            this.player.body.velocity.x += (this.player.THRUST/tar) * this.player.warpModifier * x_component;
+            this.player.body.velocity.y += (this.player.THRUST/tar) * this.player.warpModifier * y_component;
         } else if (this.player.isWarping) {
             this.player.isWarping = false;
             this.warpDownSound.play('', 0, 0.8, false);
@@ -701,8 +705,8 @@ StarPatrol.Game.prototype = {
                 }
                 var x_component = Math.cos((this.player.angle) * Math.PI / 180);
                 var y_component = Math.sin((this.player.angle) * Math.PI / 180);
-                this.player.body.velocity.x += this.player.THRUST * x_component;
-                this.player.body.velocity.y += this.player.THRUST * y_component;
+                this.player.body.velocity.x += (this.player.THRUST/tar) * x_component;
+                this.player.body.velocity.y += (this.player.THRUST/tar) * y_component;
             }
             // turn RIGHT
             if (this.cursors.right.isDown) {   //  Move to the right
@@ -711,7 +715,6 @@ StarPatrol.Game.prototype = {
             } // turn LEFT
             else if (this.cursors.left.isDown) {   //  Move to the left
                 this.player.angle -= this.player.TURNRATE;
-
             }
         }
     },
@@ -744,17 +747,20 @@ StarPatrol.Game.prototype = {
     },
 
     updateAlien: function () {
-        this.alien.update();
-
+        if (this.player.isDocked) {
+            this.alien.speed = 0;
+        } else {
+            this.alien.update();
+        }
     },
 
-    updateAsteroids: function() {
+    updateAsteroids: function () {
         if (this.asteroids.countLiving() < this.TOTALASTEROIDS) {
             this.createAsteroid();
         }
     },
 
-    applyGravity: function() {
+    applyGravity: function () {
 
         this.player.inGravitationalField = false;
 
@@ -781,7 +787,7 @@ StarPatrol.Game.prototype = {
 
     },
 
-    updateEpisode: function() {
+    updateEpisode: function () {
         //Alien appearance timer
         if (this.alienTimer < this.game.time.now) {
             if (!this.aliens) {
@@ -792,7 +798,7 @@ StarPatrol.Game.prototype = {
                 this.alienmap.fixedToCamera = true;
                 this.alienmap.anchor.setTo(0.5);
                 this.alienmap.scale.setTo(3);
-                this.alienmap.animations.add('tracking', [0,1]);
+                this.alienmap.animations.add('tracking', [0, 1]);
                 this.alienmap.animations.play('tracking', 10, true);
             }
 
@@ -801,7 +807,6 @@ StarPatrol.Game.prototype = {
                 this.alien = this.createAlien();
                 this.aliens.add(this.alien);
                 this.alienmap.revive();
-                this.alertSound.play('', 0, 0.6, false, false);
             }
         }
     },
@@ -820,11 +825,14 @@ StarPatrol.Game.prototype = {
             }
 
             if (this.alien) {
-                if (this.alien.charge < this.alien.MAXCHARGE){
+                if (this.alien.charge < this.alien.MAXCHARGE) {
                     this.alien.charge++;
                 }
-                if (this.alien.tractorBeam < this.alien.MAXCHARGE){
+                if (this.alien.tractorBeam < this.alien.MAXCHARGE) {
                     this.alien.tractorBeam++;
+                }
+                if (this.alien.deathRayCharge < this.alien.MAXCHARGE) {
+                    this.alien.deathRayCharge++;
                 }
             }
         }
@@ -844,20 +852,16 @@ StarPatrol.Game.prototype = {
 
     },
 
-    checkCollisions: function() {
+    checkCollisions: function () {
 
         // Check space station docking
-        this.game.physics.arcade.overlap(this.player, this.station, this.playerStationOverlap, null, this);
-
         this.game.physics.arcade.collide(this.player.missilegroup, this.asteroids, this.missileAsteroidHit, null, this);
         this.game.physics.arcade.collide(this.player, this.asteroids, this.playerAsteroidHit, null, this);
         this.game.physics.arcade.collide(this.player.missilegroup, this.planets, this.missilePlanetHit, null, this);
         this.game.physics.arcade.collide(this.asteroids, this.planets, this.asteroidPlanetHit, null, this);
-        this.game.physics.arcade.collide(this.player, this.planets, this.playerPlanetHit, null, this);
 
         if (this.aliens) {
             this.game.physics.arcade.collide(this.player.missilegroup, this.alien.bullets, this.missileBulletHit, null, this);
-            this.game.physics.arcade.collide(this.aliens, this.planets, this.alienPlanetHit, null, this);
             this.game.physics.arcade.collide(this.aliens, this.asteroids, this.alienAsteroidHit, null, this);
             this.game.physics.arcade.collide(this.player, this.alien.bullets, this.playerWeaponHit, null, this);
             this.game.physics.arcade.collide(this.planets, this.alien.bullets, this.planetBulletHit, null, this);
@@ -865,32 +869,46 @@ StarPatrol.Game.prototype = {
             this.game.physics.arcade.collide(this.player.lasers, this.aliens, this.laserAlienHit, null, this);
             this.game.physics.arcade.collide(this.player, this.aliens, this.playerAlienHit, null, this);
             this.game.physics.arcade.collide(this.player.missilegroup, this.aliens, this.missileAlienHit, null, this);
+            if (this.alien.hasDeathRay) {
+                this.game.physics.arcade.collide(this.player, this.alien.deathrays, this.playerDeathRayHit, null, this);
+            }
         }
 
     },
 
     createAlien: function () {
 
-        this.bonus = this.BONUS;
         var rand = this.game.rnd.integerInRange(0, this.player.aliensKilled);
+        this.alertSound.play('', 0, 0.6, false, false);
 
         if (rand <= 2) {
-            var x = this.mercury.x + 200;
-            var y = this.mercury.y + 200;
+            this.bonus = this.BONUS;
+            var x = this.mercury.x;
+            var y = this.mercury.y;
             return new Sputnik(this, this.player, this.GAME_SCALE, x, y);
         }
 
         if (rand >= 3 && rand <= 6) {
-            var x = this.venus.x + 200;
-            var y = this.venus.y + 200;
+            this.bonus = this.BONUS * 1.5;
+            var x = this.venus.x;
+            var y = this.venus.y;
             return new Drill(this, this.player, this.GAME_SCALE, x, y);
         }
 
-        if (rand > 6) {
-            var x = this.mars.x + 200;
-            var y = this.mars.y + 200;
+        if (rand >= 7 && rand <= 10) {
+            this.bonus = this.BONUS * 2;
+            var x = this.mars.x;
+            var y = this.mars.y;
             return new Magnet(this, this.player, this.GAME_SCALE, x, y);
         }
+
+        if (rand >= 11) {
+            this.bonus = this.BONUS * 3;
+            var x = this.jupiter.x;
+            var y = this.jupiter.y;
+            return new Ufo(this, this.player, this.GAME_SCALE, x, y);
+        }
+
 
     },
 
@@ -899,7 +917,7 @@ StarPatrol.Game.prototype = {
         if (!asteroid) {
             var start = this.game.rnd.integerInRange(1, 4);
 
-            switch (start){
+            switch (start) {
                 case 1:
                     var x = this.game.world.bounds.width;
                     var y = this.game.rnd.integerInRange(0, this.game.world.bounds.height);
@@ -931,7 +949,7 @@ StarPatrol.Game.prototype = {
     },
 
     detonate: function (object, framerate, big, type) {
-        if (big){
+        if (big) {
             var explosionAnimation = this.bigExplosions.getFirstExists(false);
             explosionAnimation.reset(object.x, object.y);
             explosionAnimation.play('big-explosion', framerate, false, true);
@@ -951,19 +969,19 @@ StarPatrol.Game.prototype = {
     },
 
     missilePlanetHit: function (missile, planet) {
-        this.detonate(missile, 100, false, 'destroy');
+        this.detonate(missile, 100, false, 'kill');
     },
 
     asteroidPlanetHit: function (asteroid, planet) {
         this.detonate(asteroid, 100, false, 'kill');
     },
 
-    missileAsteroidHit: function(missile, asteroid) {
-        this.detonate(missile, 100, false, 'kill');
+    missileAsteroidHit: function (missile, asteroid) {
+        this.detonate(missile, 100, false, 'destroy');
         this.detonate(asteroid, 100, false, 'kill');
     },
 
-    missileAlienHit: function(missile, alien) {
+    missileAlienHit: function (missile, alien) {
         this.alien.wasHit = true;
         this.player.missileSound.stop();
         this.player.nukeSound.stop();
@@ -971,31 +989,31 @@ StarPatrol.Game.prototype = {
         this.alien.health -= missile.damage;
     },
 
-    laserAlienHit: function(laser, alien) {
+    laserAlienHit: function (laser, alien) {
         this.alien.wasHit = true;
         this.explosionSound.play('', 0, 0.5, false, true);
-        laser.kill();
+        this.detonate(laser, 100, false, 'kill');
         this.alien.health -= laser.damage;
     },
 
-    alienAsteroidHit: function(alien, asteroid) {
+    alienAsteroidHit: function (alien, asteroid) {
         this.detonate(asteroid, 100, false, 'kill');
         this.alien.health -= asteroid.damage;
     },
 
-    playerPlanetHit: function(ship, planet) {
+    playerPlanetHit: function (ship, planet) {
         this.explosionSound.play('', 0, 0.1, false, true);
     },
 
-    alienPlanetHit: function(ship, planet) {
+    alienPlanetHit: function (ship, planet) {
         ship.avoidObstacle();
     },
 
-    planetBulletHit: function(planet, bullet) {
+    planetBulletHit: function (planet, bullet) {
         this.detonate(bullet, 100, false, 'destroy');
     },
 
-    asteroidBulletHit: function (asteroid, bullet){
+    asteroidBulletHit: function (asteroid, bullet) {
         this.detonate(asteroid, 100, false, 'kill');
         this.detonate(bullet, 100, false, 'destroy');
     },
@@ -1007,7 +1025,11 @@ StarPatrol.Game.prototype = {
 
     playerWeaponHit: function (player, bullet) {
 
-        if (this.player.isShielded){
+        if (bullet.key == 'ufo-bullet') {
+            this.alien.catchTarget(bullet);
+            return;
+        }
+        if (this.player.isShielded) {
             this.boingSound.play('', 0, 0.1, false);
             this.player.shieldStrength -= this.alien.WEAPON_DAMAGE;
             bullet.destroy();
@@ -1016,16 +1038,21 @@ StarPatrol.Game.prototype = {
         this.detonate(bullet, 50, false, 'destroy');
 
         // if player collides with anything while warping, increase damage
-        if (this.player.isWarping){
+        if (this.player.isWarping) {
             this.player.health -= this.alien.WEAPON_DAMAGE * 3;
         } else {
             this.player.health -= this.alien.WEAPON_DAMAGE;
         }
     },
 
+    playerDeathRayHit: function (player, ray) {
+        this.detonate(ray, 50, false, 'destroy');
+        this.player.health -= this.alien.WEAPON_DAMAGE;
+    },
+
     playerAsteroidHit: function (player, asteroid) {
 
-        if (this.player.isShielded){
+        if (this.player.isShielded) {
             this.boingSound.play('', 0, 0.1, false);
             this.player.shieldStrength -= asteroid.damage;
             return;
@@ -1035,7 +1062,7 @@ StarPatrol.Game.prototype = {
         this.player.health -= asteroid.damage;
 
         // if player collides with anything while warping, increase damage
-        if (this.player.isWarping){
+        if (this.player.isWarping) {
             this.player.health -= asteroid.damage * 3;
         } else {
             this.player.health -= asteroid.damage;
@@ -1050,20 +1077,20 @@ StarPatrol.Game.prototype = {
         }
         if (this.alien.isTractorBeamOn) {
             this.bendingSound.play('', 0, 1, false, true);
-            this.player.health -= this.alien.MAGNET_DAMAGE;
+            this.player.health -= this.alien.TRACTORBEAM_DAMAGE;
         } else {
             this.alien.avoidObstacle();
         }
     },
 
-    playerStationOverlap: function() {
-        if (this.dockTimer < this.game.time.now) {
+    dockStation: function () {
+        if (this.dockTimer < this.game.time.now
+            && this.game.physics.arcade.distanceBetween(this.player, this.station) < this.DOCK_DISTANCE) {
             this.player.isDocked = true;
         }
-
     },
 
-    killPlayer: function(playerKilled){
+    killPlayer: function (playerKilled) {
         this.player.isAlive = false;
         this.gameMusic.stop();
         this.explosionSound.play('', 0, 1, false, true);
@@ -1089,9 +1116,15 @@ StarPatrol.Game.prototype = {
             this.warpText.text = '';
             this.bonusText.text = '';
         }, this);
+
+        if (this.alien) {
+            this.alien.die();
+            this.alienmap.kill();
+            this.alien.destroy();
+        }
     },
 
-    killAlien: function() {
+    killAlien: function () {
         this.alien.die();
         this.alienmap.kill();
         this.player.cash += this.alien.KILL_SCORE + this.bonus;
@@ -1111,11 +1144,9 @@ StarPatrol.Game.prototype = {
         this.asteroids.destroy();
         this.explosions.destroy();
         this.bigExplosions.destroy();
+        this.aliens.destroy();
         this.player.cash = 0;
         this.player.aliensKilled = 0;
-        this.player.revive();
-        this.map.revive();
-        this.alienmap.revive();
         this.gameOver = false;
     }
 }

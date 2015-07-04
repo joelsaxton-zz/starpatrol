@@ -22,7 +22,7 @@ var Sputnik = function(main, player, scale, x, y, key, frame){
     this.ANGRY_VELOCITY = this.MAXVELOCITY * 2;
     this.SUICIDE_VELOCITY = this.MAXVELOCITY * 4;
     this.SUICIDE_THRUST = this.alienScale * 20;
-    this.KILL_SCORE = 500;
+    this.KILL_SCORE = 1000;
     this.charge = this.MAXCHARGE;
     this.tractorBeam = this.MAXCHARGE;
     this.isTractorBeamOn = false;
@@ -46,6 +46,8 @@ var Sputnik = function(main, player, scale, x, y, key, frame){
     this.bullets = [];
     this.wasHit = false;
     this.hasTractorBeam = false;
+    this.hasDrill = false;
+    this.hasBullets = false;
 
     // Sounds
     this.suicideSound = this.game.add.audio('suicide');
@@ -57,6 +59,8 @@ var Sputnik = function(main, player, scale, x, y, key, frame){
 };
 
 Sputnik.prototype = Object.create(Phaser.Sprite.prototype);
+Sputnik.prototype.updateWeapons = Alien.prototype.updateWeapons;
+Sputnik.prototype.avoidObstacle = Alien.prototype.avoidObstacle;
 Sputnik.prototype.constructor = Sputnik;
 
 Sputnik.prototype.onRevived = function() {
@@ -65,8 +69,6 @@ Sputnik.prototype.onRevived = function() {
     this.health = this.MAXHEALTH;
     this.alive = true;
 };
-
-Sputnik.prototype.avoidObstacle = Alien.prototype.avoidObstacle;
 
 Sputnik.prototype.update = function() {
     var targetAngle = this.game.math.angleBetween(
@@ -156,11 +158,6 @@ Sputnik.prototype.update = function() {
         this.avoidObstacle();
         this.wasHit = false;
     }
-};
-
-Sputnik.prototype.updateWeapons = function()
-{
-
 };
 
 Sputnik.prototype.commitSuicide = function()

@@ -16,16 +16,18 @@ var Magnet = function(main, player, scale, x, y, key, frame){
     this.health = this.MAXHEALTH;
     this.MAXCHARGE = 100;
     this.WEAPON_DAMAGE = 25;
-    this.KILL_SCORE = 2000;
-    this.MAXTHRUST = this.alienScale * 50;
-    this.MAXVELOCITY = this.alienScale * 4000;
-    this.BULLETSCALE = this.alienScale * 0.4;
-    this.BULLETLOCKDISTANCE = this.alienScale * 2000;
+    this.KILL_SCORE = 4000;
+    this.MAXTHRUST = this.alienScale * 20;
+    this.MAXVELOCITY = this.alienScale * 4200;
+    this.BULLETLOCKDISTANCE = this.alienScale * 3000;
     this.BULLETACCELERATION = this.alienScale * 4000;
     this.MAXBULLETSPEED = this.alienScale * 6000;
+    this.MINBULLETDISTANCE = this.alienScale * 2000;
     this.MAXBULLETDISTANCE = this.alienScale * 6000;
     this.MAXTRACTORBEAMDISTANCE = this.alienScale * 4000;
-    this.TRACTORBEAMFORCE = this.alienScale * 8000;
+    this.TRACTORBEAMFORCE = this.alienScale * 12000;
+    this.TRACTORBEAM_DISCHARGE = 0.5;
+    this.TRACTORBEAM_DAMAGE = 1;
     this.BULLET_DISCHARGE = 100;
     this.charge = this.MAXCHARGE;
     this.tractorBeam = this.MAXCHARGE;
@@ -43,8 +45,9 @@ var Magnet = function(main, player, scale, x, y, key, frame){
     this.isAttacking = true;
     this.isSlowing = false;
     this.bullets = this.game.add.group();
-    this.MAGNET_DAMAGE = 1;
     this.hasTractorBeam = true;
+    this.hasDrill = false;
+    this.hasBullets = true;
 
     // Sounds
     this.tractorBeamSound = this.game.add.audio('tractor-beam');
@@ -62,12 +65,16 @@ Magnet.prototype.avoidObstacle = Alien.prototype.avoidObstacle;
 Magnet.prototype.die = Alien.prototype.die;
 Magnet.prototype.createBullet = Alien.prototype.createBullet;
 Magnet.prototype.onRevived = Alien.prototype.onRevived;
+Magnet.prototype.updateWeapons = Alien.prototype.updateWeapons;
 
 Magnet.prototype.update = function() {
     var targetAngle = this.game.math.angleBetween(
         this.x, this.y,
         this.target.x, this.target.y
     );
+
+    // DISTANCE
+    var distance = this.game.physics.arcade.distanceBetween(this, this.target);
 
     // ATTACK
     if (this.isAttacking) {
@@ -102,13 +109,13 @@ Magnet.prototype.update = function() {
         this.body.velocity.y = Math.sin(this.rotation) * this.speed;
 
         // Use tractor beam
-        if (!this.isTractorBeamOn && this.tractorBeam == 100 && this.game.physics.arcade.distanceBetween(this, this.target) < this.MAXTRACTORBEAMDISTANCE) {
+        if (!this.isTractorBeamOn && this.tractorBeam > 90 && this.game.physics.arcade.distanceBetween(this, this.target) < this.MAXTRACTORBEAMDISTANCE) {
             this.isTractorBeamOn = true;
             this.animations.play('attract', 20, true);
             this.tractorBeamSound.play('', 0, 0.1, true, true);
         }
         if (this.isTractorBeamOn) {
-            this.tractorBeam -= 1;
+            this.tractorBeam -= this.TRACTORBEAM_DISCHARGE;
             this.target.body.allowGravity = true;
             this.target.body.gravity = new Phaser.Point(this.x - this.target.x, this.y - this.target.y);
             this.target.body.gravity = this.target.body.gravity.normalize().multiply(this.TRACTORBEAMFORCE, this.TRACTORBEAMFORCE);
@@ -119,7 +126,7 @@ Magnet.prototype.update = function() {
             this.tractorBeamSound.stop();
 
             // Magnet observes minimum distance after using tractor beam
-            if (this.game.physics.arcade.distanceBetween(this, this.target) < this.minAttackDistance) {
+            if (distance < this.minAttackDistance) {
                 this.isSlowing = true;
                 this.isAttacking = false;
                 this.avoidObstacle();
@@ -127,8 +134,8 @@ Magnet.prototype.update = function() {
         }
 
         // Fire heat seeking bullet
-        if (this.charge >= this.BULLET_DISCHARGE) { // @todo change the countliving stuff
-            if (this.bullets.countLiving() < 2 && this.game.physics.arcade.distanceBetween(this, this.target) < this.MAXBULLETDISTANCE) {
+        if (this.charge >= this.BULLET_DISCHARGE && !this.isTractorBeamOn) {
+            if (distance < this.MAXBULLETDISTANCE && distance > this.MINBULLETDISTANCE) {
                 this.bulletSound.play('', 0, 1, false, true);
                 this.createBullet(this.x, this.y);
                 this.charge -= this.BULLET_DISCHARGE;
@@ -166,21 +173,3 @@ Magnet.prototype.update = function() {
     }
 };
 
-Magnet.prototype.updateWeapons = function()
-{
-    if (this.alive) {
-        // Heat seeking bullet
-        this.bullets.forEach(function (bullet) {
-            if (bullet) {
-                if (this.game.physics.arcade.distanceBetween(bullet, this.target) > this.BULLETLOCKDISTANCE) {
-                    this.game.physics.arcade.accelerateToObject(bullet, this.target, this.BULLETACCELERATION, this.MAXBULLETSPEED, this.MAXBULLETSPEED);
-                } else {
-                    this.game.physics.arcade.moveToObject(bullet, this.target, parseInt(this.target.body.speed) * 10);
-                }
-                if (bullet.lifespan < this.game.time.now) {
-                    this.main.detonate(bullet, 100, false, 'destroy');
-                }
-            }
-        }, this);
-    }
-};

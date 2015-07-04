@@ -14,10 +14,11 @@ StarPatrol.MainMenu.prototype = {
         this.player.animations.add('demo', [6,7]);
         this.player.animations.play('demo', 10, true);
         this.player.angle = 45;
+
         this.splash = this.add.sprite(this.game.world.centerX, this.game.world.centerY, 'logo');
         this.splash.anchor.setTo(0.5);
 
-        this.instructionText = this.game.add.bitmapText(0,0, 'minecraftia', 'ARROWS - move, SPACE - fire, N - switch weapon, SHIFT - shields', 12);
+        this.instructionText = this.game.add.bitmapText(0,0, 'minecraftia', 'ARROWS - move, SPACE - fire, N - switch weapon, SHIFT - shields, D - dock', 12);
         this.instructionText.x = this.game.width / 2 - this.instructionText.textWidth / 2;
         this.instructionText.y = this.game.height / 1.8 + this.splash.height /2;
 
@@ -26,6 +27,7 @@ StarPatrol.MainMenu.prototype = {
         this.startText.y = this.game.height / 2 + this.splash.height /2;
     },
     update: function() {
+
         if(this.game.input.activePointer.justPressed()){
             this.game.state.start('Game');
         }
