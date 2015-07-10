@@ -75,10 +75,10 @@ var Player = function(main, x, y, frame){
 
     // Upgrades
     this.engineCost = this.ENGINE * 1000;
-    this.nukeCost = 3000;
-    this.missileCost = 300;
-    this.shieldCost = 16000;
-    this.warpCost = 32000;
+    this.nukeCost = 2000;
+    this.missileCost = 200;
+    this.shieldCost = 12000;
+    this.warpCost = 16000;
     this.chargeCost = 1000;
     this.armorCost = 1000;
 

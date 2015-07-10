@@ -62,6 +62,7 @@ Drill.prototype = Object.create(Phaser.Sprite.prototype);
 Drill.prototype.createBullet = Alien.prototype.createBullet;
 Drill.prototype.avoidObstacle = Alien.prototype.avoidObstacle;
 Drill.prototype.updateWeapons = Alien.prototype.updateWeapons;
+Drill.prototype.die = Alien.prototype.die;
 Drill.prototype.constructor = Drill;
 
 Drill.prototype.onRevived = function() {
@@ -160,10 +161,4 @@ Drill.prototype.update = function() {
         this.avoidObstacle();
         this.wasHit = false;
     }
-};
-
-Drill.prototype.die = function()
-{
-    this.alive = false;
-    this.drillSound.stop();
 };

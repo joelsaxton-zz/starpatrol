@@ -15,9 +15,9 @@ var Missile = function(isNuke, game, missileScale, x, y, angle, key, frame){
     this.outOfBoundsKill = false;
 
     this.angle = angle;
-    this.thrust = (isNuke) ? 6 : 10;
+    this.thrust = (isNuke) ? 8 : 12;
     this.missileLaunchTime = (isNuke) ? 2000 : 500;
-    this.missileLifeSpan = (isNuke) ? 8000 : 5000;
+    this.missileLifeSpan = (isNuke) ? 10000 : 5000;
     this.TURN_RATE = (isNuke) ? 2.0 : 3.0; // turn rate in degrees/frame
     this.MAX_SPEED = (isNuke) ? 1000 : 500;
     this.WOBBLE_LIMIT = (isNuke) ? 3 : 6; // degrees

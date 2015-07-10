@@ -55,6 +55,10 @@ Alien.prototype.die = function () {
         this.tractorBeamSound.stop();
     }
 
+    if (this.hasDrill) {
+        this.drillSound.stop();
+    }
+
     if (this.bullets) {
         this.bullets.forEach(function (bullet) {
             this.main.detonate(bullet, 100, false, 'destroy');

@@ -5,20 +5,20 @@ StarPatrol.Game = function () {
 
     // Scaled physics and values based on this.GAME_SCALE
     this.GAME_SCALE = 0.10;
-    this.GAMESIZE = this.GAME_SCALE * 750000;
+    this.GAMESIZE = this.GAME_SCALE * 700000;
     this.GRAVITY = this.GAME_SCALE * 2000;
     this.GRAVITYRANGE = this.GAME_SCALE * 8000;
     this.EXPLOSIONSCALE = this.GAME_SCALE * 10;
     this.SMALL_EXPLOSIONSCALE = this.GAME_SCALE * 3;
     this.PLANETSCALE = this.GAME_SCALE * 20;
     this.MAP_PLANETSCALE = this.GAME_SCALE * 120;
-    this.DOCK_DISTANCE = this.GAME_SCALE * 3000;
+    this.DOCK_DISTANCE = this.GAME_SCALE * 4000;
 
     // Timers
     this.rechargeTimer = 0;
     this.reloadTimer = 0;
     this.warpTimer = 0;
-    this.alienInterval = 6000;
+    this.alienInterval = 10000;
     this.alienTimer = 0;
     this.dockTimer = 0;
     this.disembarkTimer = 0;
@@ -446,7 +446,7 @@ StarPatrol.Game.prototype = {
     },
 
     disembarkPlayer: function () {
-        this.earth.scale.setTo(0.4);
+        this.earth.scale.setTo(0.5);
         this.station.scale.setTo(0.2);
         this.game.camera.follow(this.player);
         this.station.period += 1 / this.earth.width;
@@ -854,11 +854,11 @@ StarPatrol.Game.prototype = {
 
     checkCollisions: function () {
 
-        // Check space station docking
         this.game.physics.arcade.collide(this.player.missilegroup, this.asteroids, this.missileAsteroidHit, null, this);
         this.game.physics.arcade.collide(this.player, this.asteroids, this.playerAsteroidHit, null, this);
         this.game.physics.arcade.collide(this.player.missilegroup, this.planets, this.missilePlanetHit, null, this);
         this.game.physics.arcade.collide(this.asteroids, this.planets, this.asteroidPlanetHit, null, this);
+        this.game.physics.arcade.collide(this.player.lasers, this.asteroids, this.laserAsteroidHit, null, this);
 
         if (this.aliens) {
             this.game.physics.arcade.collide(this.player.missilegroup, this.alien.bullets, this.missileBulletHit, null, this);
@@ -978,6 +978,11 @@ StarPatrol.Game.prototype = {
 
     missileAsteroidHit: function (missile, asteroid) {
         this.detonate(missile, 100, false, 'destroy');
+        this.detonate(asteroid, 100, false, 'kill');
+    },
+
+    laserAsteroidHit: function (laser, asteroid) {
+        this.detonate(laser, 100, false, 'kill');
         this.detonate(asteroid, 100, false, 'kill');
     },
 
