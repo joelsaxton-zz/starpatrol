@@ -28,7 +28,7 @@ Alien.prototype.avoidObstacle = function() {
     if (this.alive && this.body) {
         this.body.allowGravity = false;
         var angle = this.game.rnd.realInRange(-180, 180);
-        this.game.add.tween(this).to({angle: this.angle + angle}, 1000, Phaser.Easing.Linear.None)
+        this.game.add.tween(this).to({angle: this.angle + angle}, 200, Phaser.Easing.Linear.None)
             .start()
             .onComplete.add(function () {
                 if (this.alive && this.body) {
