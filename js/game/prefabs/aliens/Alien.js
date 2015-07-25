@@ -55,6 +55,12 @@ Alien.prototype.die = function () {
         this.tractorBeamSound.stop();
     }
 
+    if (this.hasDeathRay) {
+        this.invisibleSound.stop();
+        this.bulletSound.stop();
+    }
+
+
     if (this.hasDrill) {
         this.drillSound.stop();
     }
@@ -95,7 +101,7 @@ Alien.prototype.updateWeapons = function() {
         var distance = this.game.physics.arcade.distanceBetween(this, this.target);
         if (distance <= this.DRILL_DISTANCE && this.charge > 0) {
             this.drillSound.play('', 0, 0.5, false, false);
-            this.charge--;
+            this.charge -= this.DRILL_DISCHARGE;
             this.target.health -= this.DRILL_DAMAGE;
             var explosionAnimation = this.main.smallExplosions.getFirstExists(false);
             explosionAnimation.reset(this.target.x, this.target.y);

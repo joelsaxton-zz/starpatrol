@@ -11,7 +11,7 @@ var Sputnik = function(main, player, scale, x, y, key, frame){
     this.alienScale = scale;
     this.id = this.game.rnd.uuid();
     this.anchor.setTo(0.5);
-    this.scale.setTo(scale * 1.8);
+    this.scale.setTo(scale * 2);
     this.MAXHEALTH = 50;
     this.health = this.MAXHEALTH;
     this.MAXCHARGE = 100;
@@ -114,7 +114,7 @@ Sputnik.prototype.update = function() {
 
         if (this.health <= this.ANGRY_HEALTH) {
             this.MAXVELOCITY = this.ANGRY_VELOCITY;
-            this.suicideSound.play('', 0, 0.1, false, false);
+            this.suicideSound.play('', 0, 0.2, false, false);
             this.isAttacking = true;
         }
 
@@ -123,7 +123,7 @@ Sputnik.prototype.update = function() {
             this.MAXTHRUST = this.SUICIDE_THRUST;
             this.isAttacking = true;
             this.animations.play('suicide', 20, true);
-            this.suicideSound.play('', 0, 1, false, false);
+            this.suicideSound.play('', 0, 0.1, false, true);
             if (this.game.physics.arcade.distanceBetween(this, this.target) < this.MIN_SUICIDE_DISTANCE) {
                 this.commitSuicide();
             }

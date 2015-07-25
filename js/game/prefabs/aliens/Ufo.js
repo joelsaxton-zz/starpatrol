@@ -12,22 +12,22 @@ var Ufo = function (main, player, scale, x, y, key, frame) {
     this.alienScale = scale;
     this.id = this.game.rnd.uuid();
     this.anchor.setTo(0.5, 0.5);
-    this.scale.setTo(scale * 4);
-    this.MAXHEALTH = 200;
+    this.scale.setTo(scale * 2.4);
+    this.MAXHEALTH = 240;
     this.health = this.MAXHEALTH;
     this.MAXCHARGE = 100;
-    this.INVISIBILITY_DISCHARGE = 0.5;
+    this.INVISIBILITY_DISCHARGE = 0.25;
     this.INVISIBILITY_DISTANCE = 2000;
     this.BULLETLOCKDISTANCE = this.alienScale * 4000;
     this.BULLETACCELERATION = this.alienScale * 6000;
     this.MAXBULLETSPEED = this.alienScale * 6000;
     this.MINBULLETDISTANCE = this.alienScale * 1000;
     this.MAXBULLETDISTANCE = this.alienScale * 8000;
-    this.BULLET_DISCHARGE = 75;
-    this.DEATHRAY_DISCHARGE = 30;
+    this.BULLET_DISCHARGE = 100;
+    this.DEATHRAY_DISCHARGE = 100;
     this.DEATHRAY_SCALE = 0.2;
     this.MAXCANNONDISTANCE = 800;
-    this.WEAPON_DAMAGE = 40;
+    this.WEAPON_DAMAGE = 100;
     this.KILL_SCORE = 8000;
     this.MAXTHRUST = this.alienScale * 20;
     this.MAXVELOCITY = this.alienScale * 4500;
@@ -75,6 +75,7 @@ Ufo.prototype.avoidObstacle = Alien.prototype.avoidObstacle;
 Ufo.prototype.die = Alien.prototype.die;
 Ufo.prototype.onRevived = Alien.prototype.onRevived;
 Ufo.prototype.createBullet = Alien.prototype.createBullet;
+Ufo.prototype.die = Alien.prototype.die;
 
 Ufo.prototype.update = function () {
     var targetAngle = this.game.math.angleBetween(
@@ -185,11 +186,6 @@ Ufo.prototype.update = function () {
     }
 };
 
-Ufo.prototype.die = function () {
-    this.alive = false;
-    this.invisibleSound.stop();
-    this.bulletSound.stop();
-};
 
 Ufo.prototype.catchTarget = function (bullet) {
     bullet.x = this.target.x;
@@ -204,14 +200,14 @@ Ufo.prototype.catchTarget = function (bullet) {
 Ufo.prototype.fireDeathRay = function () {
     if (this.deathRayCharge >= this.DEATHRAY_DISCHARGE) {
         this.deathRayCharge -= this.DEATHRAY_DISCHARGE;
-        var deathray = this.deathrays.getFirstDead();
-        if (!deathray) {
-            deathray = new DeathRay(this.game, this.DEATHRAY_SCALE, this.x, this.y, this.angle);
-            this.deathrays.add(deathray);
+        var deathRay = this.deathrays.getFirstDead();
+        if (!deathRay) {
+            deathRay = new DeathRay(this.game, this.DEATHRAY_SCALE, this.x, this.y, this.angle);
+            this.deathrays.add(deathRay);
         }
         this.deathRaySound.play('', 0, 0.4, false, true);
-        deathray.reset(this.x, this.y);
-        deathray.revive();
+        deathRay.reset(this.x, this.y);
+        deathRay.revive();
     }
 };
 

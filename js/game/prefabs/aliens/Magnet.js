@@ -12,7 +12,7 @@ var Magnet = function(main, player, scale, x, y, key, frame){
     this.id = this.game.rnd.uuid();
     this.anchor.setTo(0.5);
     this.scale.setTo(scale * 2);
-    this.MAXHEALTH = 150;
+    this.MAXHEALTH = 160;
     this.health = this.MAXHEALTH;
     this.MAXCHARGE = 100;
     this.WEAPON_DAMAGE = 25;

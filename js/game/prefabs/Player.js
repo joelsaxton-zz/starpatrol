@@ -69,7 +69,7 @@ var Player = function(main, x, y, frame){
     this.hasWarpDrive = false;
     this.selectedWeapon = 'laser';
     this.aliensKilled = 0;
-    this.cash = 3000;
+    this.cash = 30000;
     this.inGravitationalField = false;
     this.SLINGSHOT_SLOW_RATE = 0.99; // @todo revisit slowdown
 
