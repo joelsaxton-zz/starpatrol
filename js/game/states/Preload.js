@@ -60,13 +60,14 @@ StarPatrol.Preload.prototype = {
         this.load.spritesheet('warp-buy', 'assets/images/warp-buy.png', 115, 110, 1);
         this.load.spritesheet('kills', 'assets/images/kills.png', 50, 60, 1);
         this.load.spritesheet('dollars', 'assets/images/dollar.png', 50, 60, 1);
+        this.load.spritesheet('alien', 'assets/images/alien.png', 50, 60, 1);
         this.load.spritesheet('station', 'assets/images/station.png', 348, 326, 1);
         this.load.spritesheet('flameship', 'assets/images/flameship.png', 259, 134, 1);
         this.load.spritesheet('flame', 'assets/images/flame.png', 320, 109, 7);
         this.load.spritesheet('ufo', 'assets/images/ufo.png', 300, 300, 5);
         this.load.spritesheet('ufo-bullet', 'assets/images/ufo-bullet.png', 100, 100, 4);
         this.load.spritesheet('deathray', 'assets/images/deathray.png', 120, 40, 1);
-        this.load.spritesheet('panel', 'assets/images/panel.png', 120, 180, 1);
+        this.load.spritesheet('panel', 'assets/images/panel.png', 120, 200, 1);
 
         this.load.audio('gameMusic', ['assets/audio/music.mp3', 'assets/audio/music.ogg']);
         this.load.audio('laser', 'assets/audio/laser.wav');

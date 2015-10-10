@@ -15,7 +15,7 @@ Scoreboard.prototype.show = function(score, gameOverSound, explosionSound, victo
     bmd.ctx.fillRect(0,0, this.game.width, this.game.height);
 
     background = this.game.add.sprite(0,0, bmd);
-    background.alpha = 0.5;
+    background.alpha = 1;
 
     this.add(background);
 

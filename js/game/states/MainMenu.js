@@ -15,30 +15,6 @@ StarPatrol.MainMenu.prototype = {
         this.player.animations.play('demo', 10, true);
         this.player.angle = 45;
 
-        this.alien = this.add.sprite(900, this.game.height/2, 'flameship');
-        this.alien.anchor.setTo(0, 0.5);
-        this.alien.scale.setTo(0.75);
-        this.alien.angle = 45;
-
-
-        this.smokeEmitter = this.add.emitter(0, 0, 100);
-        this.smokeEmitter.lifespan = 5000;
-        // Set motion parameters for the emitted particles
-        this.smokeEmitter.gravity = 0;
-        this.smokeEmitter.setXSpeed(-310, -300);
-        this.smokeEmitter.setYSpeed(-310, -300);
-
-        this.smokeEmitter.setAlpha(0.5, 0, this.smokeEmitter.lifespan,
-            Phaser.Easing.Linear.InOut);
-
-        // Create the actual particles
-        this.smokeEmitter.makeParticles('explosion', [3,4,5,6,7,8,9,10], 100, true);
-
-        // Start emitting smoke particles one at a time (explode=false) with a
-        // lifespan of this.SMOKE_LIFETIME at 100ms intervals
-        this.smokeEmitter.start(false, this.smokeEmitter.lifespan, 50);
-
-
         this.splash = this.add.sprite(this.game.world.centerX, this.game.world.centerY, 'logo');
         this.splash.anchor.setTo(0.5);
 
@@ -51,8 +27,6 @@ StarPatrol.MainMenu.prototype = {
         this.startText.y = this.game.height / 2 + this.splash.height /2;
     },
     update: function() {
-        this.smokeEmitter.x = this.alien.x;
-        this.smokeEmitter.y = this.alien.y;
         if(this.game.input.activePointer.justPressed()){
             this.game.state.start('Game');
         }

@@ -12,49 +12,49 @@ var Chainsaw = function (main, player, scale, x, y, key, frame) {
     this.alienScale = scale;
     this.id = this.game.rnd.uuid();
     this.anchor.setTo(0.5, 0.5);
-    this.scale.setTo(scale * 3.6);
-    this.MAXHEALTH = 300;
+    this.scale.setTo(scale * 2);
+    this.MAXHEALTH = 100;
+    this.FIRST_ATTACK_HEALTH = 90;
+    this.SECOND_ATTACK_HEALTH = 60;
     this.health = this.MAXHEALTH;
     this.MAXCHARGE = 100;
+    this.CHAINSAW_DISCHARGE = 0.1;
     this.isAttacking = true;
-    this.WEAPON_DAMAGE = 50;
-    this.KILL_SCORE = 16000;
-    this.MAXTHRUST = this.alienScale * 20;
-    this.MAXVELOCITY = this.alienScale * 4000;
-    this.ATTACKVELOCITY = this.alienScale * 6000;
+    this.WEAPON_DAMAGE = 1;
+    this.KILL_SCORE = 2000;
+    this.MAXTHRUST = this.alienScale * 4;
+    this.MAXVELOCITY = this.alienScale * 2000;
+    this.ATTACKVELOCITY = this.alienScale * 4000;
     this.maxVelocity = this.MAXVELOCITY;
-    this.flameTimer = 0;
-    this.flameInterval = 1000;
     this.retreatTimer = 0;
-    this.retreatInterval = 3000;
+    this.retreatInterval = 8000;
     this.charge = this.MAXCHARGE;
     this.player = player;
     this.target = this.player;
-    this.flameTarget = {x: 0, y: 0};
-    this.retreatTarget = {x:0, y: 0};
+    this.retreatTarget = {x: 0, y: 0};
     this.distance = 0;
     this.targetAngle = 0;
     this.x_offset = 10;
     this.y_offset = 10;
-    this.hasNewFlameTarget = false;
     this.alive = true;
     this.game.physics.arcade.enableBody(this);
     this.checkWorldBounds = true;
     this.body.collideWorldBounds = true;
     this.body.bounce.set(0.8);
     this.events.onRevived.add(this.onRevived, this);
-    this.turnRate = 1.5;
+    this.turnRate = 1.2;
     this.speed = 0;
     this.attackDistance = 300;
-    this.minAttackDistance = 80;
-    this.retreatDistance = 2000;
+    this.minAttackDistance = 100;
+    this.retreatDistance = 4000;
     this.targetSwitchDistance = 40; // How close to get to target before switching to new target
     this.hasTractorBeam = false;
     this.hasDrill = false;
     this.hasBullets = false;
     this.hasFlameTrail = false;
     this.flameLifespan = 400;
-    this.firstAttack = true;
+    this.firstAttack = false;
+    this.secondAttack = false;
 
     // Chainsaw exhaust emitter
     this.smokeEmitter = this.main.add.emitter(0, 0, 100);
@@ -69,7 +69,7 @@ var Chainsaw = function (main, player, scale, x, y, key, frame) {
         Phaser.Easing.Linear.InOut);
 
     // Create the actual particles
-    this.smokeEmitter.makeParticles('smoketrail', [9,10,11,12,13,14,15,16,17,18,19,20,21,22,23], 100, false);
+    this.smokeEmitter.makeParticles('smoketrail', [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23], 100, false);
 
     // Start emitting smoke particles one at a time (explode=false) with a
     // lifespan of 25ms intervals
@@ -78,7 +78,7 @@ var Chainsaw = function (main, player, scale, x, y, key, frame) {
 
     // Animations
     this.animations.add('cruise', [0]);
-    this.animations.add('chainsaw', [0,1]);
+    this.animations.add('chainsaw', [0, 1]);
     this.animations.play('cruise', 20);
 
     // Sounds
@@ -93,7 +93,21 @@ Chainsaw.prototype.constructor = Chainsaw;
 Chainsaw.prototype.avoidObstacle = Alien.prototype.avoidObstacle;
 Chainsaw.prototype.die = Alien.prototype.die;
 Chainsaw.prototype.onRevived = Alien.prototype.onRevived;
-Chainsaw.prototype.updateWeapons = Alien.prototype.updateWeapons;
+
+Chainsaw.prototype.updateWeapons = function() {
+    // Attack with drill if close enough
+    if (this.alive) {
+        var distance = this.game.physics.arcade.distanceBetween(this, this.target);
+        if (distance <= this.minAttackDistance && this.charge > 0) {
+            this.chainsawAttack.play('', 0, 0.5, false, false);
+            this.charge -= this.CHAINSAW_DISCHARGE;
+            this.target.health -= this.WEAPON_DAMAGE;
+            var explosionAnimation = this.main.smallExplosions.getFirstExists(false);
+            explosionAnimation.reset(this.target.x, this.target.y);
+            explosionAnimation.play('explosion', 500, false, true);
+        }
+    }
+}
 
 Chainsaw.prototype.update = function () {
 
@@ -107,7 +121,6 @@ Chainsaw.prototype.update = function () {
 
     // DISTANCE
     this.distanceToPlayer = this.game.physics.arcade.distanceBetween(this, this.player);
-    this.distanceToFlameTarget = this.game.physics.arcade.distanceBetween(this, this.flameTarget);
     this.distanceToRetreatTarget = this.game.physics.arcade.distanceBetween(this, this.retreatTarget);
 
     // Chainsaw speeds up
@@ -140,44 +153,39 @@ Chainsaw.prototype.update = function () {
     this.body.velocity.x = Math.cos(this.rotation) * this.speed;
     this.body.velocity.y = Math.sin(this.rotation) * this.speed;
 
-    if (this.distanceToPlayer <= this.minAttackDistance) { // Retreat to make another pass
+    if (this.charge <= 10 && this.distanceToPlayer <= this.minAttackDistance) {
         if (this.isAttacking) {
+            this.secondAttack = true;
             this.retreatTimer = this.game.time.now + this.retreatInterval;
             this.isAttacking = false;
             this.maxVelocity = this.MAXVELOCITY;
             this.getRetreatTarget();
+            this.smokeEmitter.on = false;
         }
         this.target = this.retreatTarget;
 
-    } else if (this.isAttacking && (this.distanceToPlayer <= this.attackDistance || this.hasNewFlameTarget)) {
-        if (!this.hasNewFlameTarget) {
-            this.flameTimer = this.game.time.now + this.flameInterval;
-            this.hasNewFlameTarget = true;
-            this.maxVelocity = this.ATTACKVELOCITY;
-            this.getFlameTarget();
-            this.smokeEmitter.on = true;
-            if (this.firstAttack) {
-                this.chainsawOn.play('', 0, 1.0, false, false);
-                this.firstAttack = false;
-            }
-        }
-        this.target = this.flameTarget;
-        this.chainsawIdle.play('', 0, 0.5, true, false);
+    } else if (this.charge > 0 && this.isAttacking && this.distanceToPlayer <= this.attackDistance) {
+        this.maxVelocity = this.ATTACKVELOCITY;
+        this.smokeEmitter.on = true;
+        this.charge -= this.CHAINSAW_DISCHARGE;
 
-        // Switch back to player once flame target is reached
-        if (this.flameTimer < this.game.time.now || this.distanceToFlameTarget <= this.targetSwitchDistance) {
-            this.maxVelocity = this.MAXVELOCITY;
-            this.hasNewFlameTarget = false;
-            this.smokeEmitter.on = false;
-            this.target = this.player;
-            this.animations.play('cruise', 20);
+        if (!this.firstAttack && this.health < this.FIRST_ATTACK_HEALTH) {
+            this.chainsawOn.play('', 0, 1.0, false, false);
+            this.firstAttack = true;
         }
+
+        if (!this.secondAttack && this.health < this.SECOND_ATTACK_HEALTH) {
+            this.chainsawAttack.play('', 0, 1.0, false, false);
+            this.secondAttack = true;
+        }
+
+        this.target = this.player;
+        this.chainsawIdle.play('', 0, 0.25, true, false);
 
     } else { // If farther than both cases, check if retreating or if should attack again
 
         // Switch back to player once retreat target is reached
         if (!this.isAttacking && ( this.retreatTimer < this.game.time.now || this.distanceToRetreatTarget <= this.targetSwitchDistance)) {
-            this.hasNewFlameTarget = false;
             this.isAttacking = true;
             this.smokeEmitter.on = false;
             this.target = this.player;
@@ -190,8 +198,8 @@ Chainsaw.prototype.getRetreatTarget = function () {
     var y = this.player.y;
     var x_vel = this.player.body.velocity.x;
     var y_vel = this.player.body.velocity.y;
-    this.x_offset = x_vel <=0 ? this.retreatDistance : -this.retreatDistance;
-    this.y_offset = y_vel <=0 ? this.retreatDistance : -this.retreatDistance;
+    this.x_offset = x_vel <= 0 ? this.retreatDistance : -this.retreatDistance;
+    this.y_offset = y_vel <= 0 ? this.retreatDistance : -this.retreatDistance;
 
     this.retreatTarget.x = x + this.x_offset;
     this.retreatTarget.y = y + this.y_offset;
@@ -203,25 +211,11 @@ Chainsaw.prototype.getRetreatTarget = function () {
     if (this.retreatTarget.y > this.GAMESIZE) this.retreatTarget.y = this.GAMESIZE;
 };
 
-Chainsaw.prototype.getFlameTarget = function () {
-    var x = this.player.x;
-    var y = this.player.y;
-    var x_vel = this.player.body.velocity.x;
-    var y_vel = this.player.body.velocity.y;
-    this.x_offset = this.game.rnd.integerInRange(1, 3);
-    this.y_offset = this.game.rnd.integerInRange(1, 3);
-    this.flameTarget.x = x + x_vel * this.x_offset;
-    this.flameTarget.y = y + y_vel * this.y_offset;
-
-    // Handle out of bounds cases
-    if (this.flameTarget.x < 0) this.flameTarget.x = 0;
-    if (this.flameTarget.y < 0) this.flameTarget.y = 0;
-    if (this.flameTarget.x > this.GAMESIZE) this.flameTarget.x = this.GAMESIZE;
-    if (this.flameTarget.y > this.GAMESIZE) this.flameTarget.y = this.GAMESIZE;
-};
-
 Chainsaw.prototype.die = function () {
     this.alive = false;
     this.smokeEmitter.on = false;
+    this.chainsawOn.stop();
+    this.chainsawIdle.stop();
+    this.chainsawAttack.stop();
 };
 

@@ -55,16 +55,6 @@ Alien.prototype.die = function () {
         this.tractorBeamSound.stop();
     }
 
-    if (this.hasDeathRay) {
-        this.invisibleSound.stop();
-        this.bulletSound.stop();
-    }
-
-
-    if (this.hasDrill) {
-        this.drillSound.stop();
-    }
-
     if (this.bullets) {
         this.bullets.forEach(function (bullet) {
             this.main.detonate(bullet, 100, false, 'destroy');
@@ -94,18 +84,5 @@ Alien.prototype.updateWeapons = function() {
                 }
             }
         }, this);
-    }
-
-    // Attack with drill if close enough
-    if (this.hasDrill && this.alive) {
-        var distance = this.game.physics.arcade.distanceBetween(this, this.target);
-        if (distance <= this.DRILL_DISTANCE && this.charge > 0) {
-            this.drillSound.play('', 0, 0.5, false, false);
-            this.charge -= this.DRILL_DISCHARGE;
-            this.target.health -= this.DRILL_DAMAGE;
-            var explosionAnimation = this.main.smallExplosions.getFirstExists(false);
-            explosionAnimation.reset(this.target.x, this.target.y);
-            explosionAnimation.play('explosion', 500, false, true);
-        }
     }
 };
