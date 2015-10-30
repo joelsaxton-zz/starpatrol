@@ -5,13 +5,13 @@ StarPatrol.Game = function () {
 
     // Scaled physics and values based on this.GAME_SCALE
     this.GAME_SCALE = 0.10;
-    this.GAMESIZE = this.GAME_SCALE * 700000;
-    this.GRAVITY = this.GAME_SCALE * 2000;
-    this.GRAVITYRANGE = this.GAME_SCALE * 8000;
+    this.GAMESIZE = this.GAME_SCALE * 600000;
+    this.GRAVITY = this.GAME_SCALE * 1200;
+    this.GRAVITYRANGE = this.GAME_SCALE * 12000;
     this.EXPLOSIONSCALE = this.GAME_SCALE * 10;
     this.SMALL_EXPLOSIONSCALE = this.GAME_SCALE * 3;
     this.PLANETSCALE = this.GAME_SCALE * 20;
-    this.MAP_PLANETSCALE = this.GAME_SCALE * 100;
+    this.MAP_PLANETSCALE = this.GAME_SCALE * 90;
     this.DOCK_DISTANCE = this.GAME_SCALE * 4000;
 
     // Timers
@@ -464,7 +464,7 @@ StarPatrol.Game.prototype = {
     },
 
     checkWin: function () {
-        if (this.player.aliensKilled == 100) { // @todo revisit
+        if (this.player.aliensKilled == 20) {
             this.gameMusic.stop();
             this.warpLoopSound.stop();
             this.game.world.bounds = new Phaser.Rectangle(0, 0, this.game.width, this.game.height);
@@ -643,8 +643,6 @@ StarPatrol.Game.prototype = {
         if (this.player.isWarping) {
             this.player.animations.play('warp', 10, true);
             this.constrainVelocity(this.player, this.player.WARPVELOCITY / tar);
-        } else if (this.player.inGravitationalField) {
-            this.constrainVelocity(this.player, this.player.SLINGSHOT_VELOCITY / tar);
         } else {
             this.constrainVelocity(this.player, this.player.VELOCITY / tar);
         }
@@ -866,6 +864,7 @@ StarPatrol.Game.prototype = {
         this.game.physics.arcade.collide(this.player.missilegroup, this.planets, this.missilePlanetHit, null, this);
         this.game.physics.arcade.collide(this.asteroids, this.planets, this.asteroidPlanetHit, null, this);
         this.game.physics.arcade.collide(this.player.lasers, this.asteroids, this.laserAsteroidHit, null, this);
+        this.game.physics.arcade.collide(this.player, this.planets, this.playerPlanetHit, null, this);
 
         if (this.aliens.countLiving() > 0) {
             this.game.physics.arcade.collide(this.player.missilegroup, this.alien.bullets, this.missileBulletHit, null, this);
@@ -889,43 +888,48 @@ StarPatrol.Game.prototype = {
 
     createAlien: function () {
 
-        var rand = this.game.rnd.integerInRange(0, this.player.aliensKilled);
         this.alertSound.play('', 0, 0.6, false, false);
-
-        if (rand <= 2) {
-            this.bonus = this.BONUS;
-            var x = this.mercury.x;
-            var y = this.mercury.y;
-            return new Sputnik(this, this.player, this.GAME_SCALE, x, y);
+        switch (this.player.aliensKilled) {
+            case 0:
+            case 1:
+            case 4:
+                this.bonus = this.BONUS;
+                var x = this.mercury.x;
+                var y = this.mercury.y;
+                return new Sputnik(this, this.player, this.GAME_SCALE, x, y);
+            case 2:
+            case 3:
+            case 5:
+            case 6:
+                this.bonus = this.BONUS * 2;
+                var x = this.venus.x;
+                var y = this.venus.y;
+                return new Chainsaw(this, this.player, this.GAME_SCALE, x, y);
+            case 7:
+            case 8:
+            case 10:
+            case 12:
+            case 15:
+                this.bonus = this.BONUS * 3;
+                var x = this.mars.x;
+                var y = this.mars.y;
+                return new Magnet(this, this.player, this.GAME_SCALE, x, y);
+            case 9:
+            case 11:
+            case 13:
+            case 14:
+            case 17:
+                this.bonus = this.BONUS * 4;
+                var x = this.jupiter.x;
+                var y = this.jupiter.y;
+                return new Ufo(this, this.player, this.GAME_SCALE, x, y);
+            default:
+                this.bonus = this.BONUS * 5;
+                var x = this.saturn.x;
+                var y = this.saturn.y;
+                return new Flameship(this, this.player, this.GAME_SCALE, x, y);
         }
 
-        if (rand >= 3 && rand <= 6) {
-            this.bonus = this.BONUS * 2;
-            var x = this.venus.x;
-            var y = this.venus.y;
-            return new Chainsaw(this, this.player, this.GAME_SCALE, x, y);
-        }
-
-        if (rand >= 7 && rand <= 11) {
-            this.bonus = this.BONUS * 3;
-            var x = this.mars.x;
-            var y = this.mars.y;
-            return new Magnet(this, this.player, this.GAME_SCALE, x, y);
-        }
-
-        if (rand >= 12) {
-            this.bonus = this.BONUS * 4;
-            var x = this.jupiter.x;
-            var y = this.jupiter.y;
-            return new Ufo(this, this.player, this.GAME_SCALE, x, y);
-        }
-
-        if (rand >= 16) {
-            this.bonus = this.BONUS * 5;
-            var x = this.saturn.x;
-            var y = this.saturn.y;
-            return new Flameship(this, this.player, this.GAME_SCALE, x, y);
-        }
     },
 
     createAsteroid: function () {
@@ -1000,6 +1004,10 @@ StarPatrol.Game.prototype = {
     laserAsteroidHit: function (laser, asteroid) {
         this.detonate(laser, 100, false, 'kill');
         this.detonate(asteroid, 100, false, 'kill');
+    },
+
+    playerPlanetHit: function () {
+        this.explosionSound.play('', 0, 0.1, false, true);
     },
 
     missileAlienHit: function (missile, alien) {
@@ -1095,7 +1103,7 @@ StarPatrol.Game.prototype = {
 
     playerAlienHit: function () {
         this.explosionSound.play('', 0, 0.1, false, true);
-        if (this.alien.key == 'sputnik') {
+        if (this.alien.key == 'sputnik' || this.alien.key == 'ufo') {
             this.player.health -= this.alien.COLLISION_DAMAGE;
             this.detonate(this.player, 100, false, 'hit');
         }

@@ -26,9 +26,9 @@ var Player = function(main, x, y, frame){
 
     // Mutable limits based on game progress
     this.ENGINE = 1;
-    this.VELOCITY = this.playerScale * this.ENGINE * 2000;
+    this.VELOCITY = this.playerScale * this.ENGINE * 3000;
     this.SLINGSHOT_VELOCITY = this.VELOCITY * this.SLINGSHOT_MULTIPLIER;
-    this.THRUST = this.playerScale * this.ENGINE * 20;
+    this.THRUST = this.playerScale * this.ENGINE * 8;
     this.HEALTH = 10;
     this.CHARGE = 100;
     this.TURNRATE = this.ENGINE;
@@ -40,7 +40,7 @@ var Player = function(main, x, y, frame){
     this.NUKESCALE = this.playerScale * 0.5;
 
     this.MAX_MISSILES = 10;
-    this.MAX_NUKES = 1;
+    this.MAX_NUKES = 3;
     this.ENGINE_COST_MULTIPLIER = 1.5;
     this.WARP_DISCHARGE = 0.2;
     this.SHIELD_DISCHARGE = 4;
@@ -58,7 +58,7 @@ var Player = function(main, x, y, frame){
     this.isWarping = false;
     this.isShielded = false;
     this.game.physics.arcade.enableBody(this);
-    this.body.bounce.set(0.5);
+    this.body.bounce.set(1);
     this.checkWorldBounds = true;
     this.body.collideWorldBounds = true;
     this.isDocked = true;
