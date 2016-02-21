@@ -28,7 +28,7 @@ var Player = function(main, x, y, frame){
     this.ENGINE = 1;
     this.VELOCITY = this.playerScale * this.ENGINE * 3000;
     this.SLINGSHOT_VELOCITY = this.VELOCITY * this.SLINGSHOT_MULTIPLIER;
-    this.THRUST = this.playerScale * this.ENGINE * 8;
+    this.THRUST = this.playerScale * this.ENGINE * 10;
     this.HEALTH = 10;
     this.CHARGE = 100;
     this.TURNRATE = this.ENGINE;
@@ -39,8 +39,8 @@ var Player = function(main, x, y, frame){
     this.LASERSCALE = this.playerScale * 1.6;
     this.NUKESCALE = this.playerScale * 0.5;
 
-    this.MAX_MISSILES = 10;
-    this.MAX_NUKES = 3;
+    this.MAX_MISSILES = 8;
+    this.MAX_NUKES = 2;
     this.ENGINE_COST_MULTIPLIER = 1.5;
     this.WARP_DISCHARGE = 0.2;
     this.SHIELD_DISCHARGE = 4;
@@ -74,11 +74,11 @@ var Player = function(main, x, y, frame){
     this.SLINGSHOT_SLOW_RATE = 0.99; // @todo revisit slowdown
 
     // Upgrades
-    this.engineCost = this.ENGINE * 1000;
-    this.nukeCost = 2000;
-    this.missileCost = 200;
-    this.shieldCost = 6000;
-    this.warpCost = 8000;
+    this.engineCost = 2000;
+    this.nukeCost = 4000;
+    this.missileCost = 400;
+    this.shieldCost = 8000;
+    this.warpCost = 10000;
     this.chargeCost = 1000;
     this.armorCost = 1000;
 
@@ -194,7 +194,6 @@ Player.prototype.upgradeShip = function(part) {
                 this.TURNRATE += this.TURNRATE_INCREMENT;
                 this.VELOCITY += this.VELOCITY_INCREMENT;
                 this.SLINGSHOT_VELOCITY = this.VELOCITY * this.SLINGSHOT_MULTIPLIER;
-                this.engineCost = Math.floor(this.engineCost * this.ENGINE_COST_MULTIPLIER); // @todo revisit
             }
             break;
         case 'charge':

@@ -8,5 +8,4 @@ game.state.add('Preloader', StarPatrol.Preload);
 game.state.add('MainMenu', StarPatrol.MainMenu);
 game.state.add('Game', StarPatrol.Game);
 
-
 game.state.start('Boot');
